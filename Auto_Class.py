@@ -1,9 +1,9 @@
 from openpyxl import Workbook
 from openpyxl import load_workbook
-from tkinter import *
 import tkinter
 import pyautogui as pg  # message box library
-
+from tkinter import filedialog as fd  # import file dialog
+import os
 
 class VariableDeclare:
     def __init__(self, path):
@@ -30,11 +30,13 @@ class CommonVar:
         self.excel_input_unit = ["dB"]
         self.excel_output_unit = ["dB"]
         self.excel_power_unit = ["V"]
+        self.rf_power = []
 
         self.excel_freq_column = "A"
         self.excel_input_column = "B"
         self.excel_output_column = "C"
         self.excel_power_column = "D"
+        self.save_hor = True
 
 
 class Excel(CommonVar, VariableDeclare):
@@ -63,8 +65,29 @@ class Excel(CommonVar, VariableDeclare):
         else:
             self.l_ws_list[sheet_num] = self.l_wb[ws_name[sheet_num]]
 
-    def save_xls_sheet_num(self, sheet_num):
-        pass
+    def save_all_var(self, path):
+        # test var
+        print(self.freq_var)
+        print(self.input_offset_var)
+        print(self.output_offset_var)
+        print(self.voltage_var)
+
+        if self.save_hor is True:
+            self.w_wb = Workbook()
+            self.w_ws_list.append(self.w_wb.create_sheet("ATR"))
+
+            self.w_ws_list[0] = self.w_wb.active
+            self.w_ws_list[0].cell(1, 1, "frequency")
+            self.w_ws_list[0].cell(1, 2, "rf output_0")
+            self.w_ws_list[0].cell(1, 3, "rf output_1")
+            self.w_ws_list[0].cell(1, 4, "current")
+
+            self.w_ws_list[0].cell(2, 1, "Hz")
+            self.w_ws_list[0].cell(2, 2, "dBm")
+            self.w_ws_list[0].cell(2, 3, "W")
+            self.w_ws_list[0].cell(2, 4, "A")
+
+            self.w_wb.save(path)
 
     # frequency, io offset, voltage get from work sheet 0
     def get_offset_procedure_version_0(self):
@@ -178,12 +201,6 @@ class Excel(CommonVar, VariableDeclare):
             i += 1
             voltage_data_cell = self.excel_power_column + str(i)
 
-        # test var
-        print(self.freq_var)
-        print(self.input_offset_var)
-        print(self.output_offset_var)
-        print(self.voltage_var)
-
 
 class SjKim:
     def __init__(self):
@@ -193,4 +210,34 @@ class SjKim:
 
     def root_close(self):
         self.g_root.quit()
+
+    def load_file_dialog(self):
+        dir_path = fd.askopenfilename(parent=self.g_root,
+                                      initialdir=os.getcwd(),
+                                      title='Select Config Excel File')  # 대화창 open
+        if len(dir_path) == 0:
+            return "-1"
+        else:
+            check_excel = dir_path[len(dir_path) - 5:len(dir_path)]
+            if check_excel == ".xlsx":
+                return dir_path
+            else:
+                self.load_file_dialog()
+
+    def save_file_dialog(self):
+
+        dir_path = fd.asksaveasfilename(parent=self.g_root,
+                                        initialdir=os.getcwd(),
+                                        initialfile="atr.xlsx",
+                                        title='Save Excel File',
+                                        filetypes=[("excel files", "*.xlsx"), ("all", "*.*")]
+                                        )  # 대화창 open
+        if len(dir_path) == 0:
+            return "-1"
+        else:
+            check_excel = dir_path[len(dir_path) - 5:len(dir_path)]
+            if check_excel == ".xlsx":
+                return dir_path
+            else:
+                self.save_file_dialog()
 

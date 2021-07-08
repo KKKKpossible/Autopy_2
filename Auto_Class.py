@@ -35,6 +35,14 @@ class VariableDeclare:
 
 class CommonDialogVar:
     def __init__(self):
+        # excel instance call
+        self.exel = Excel()
+        # dialog set
+        self.g_root = tkinter.Tk()
+        self.g_root.protocol("WM_DELETE_WINDOW", self.root_close)
+        self.g_root.withdraw()
+        self.excel_path = ""
+
         self.remote_p_meter_id = 0
         self.remote_power_id = 1
         self.remote_network_id = 2
@@ -45,6 +53,11 @@ class CommonDialogVar:
         self.atr_power_id = 6
         self.atr_network_id = 7
         self.atr_spectrum_id = 8
+
+        self.atr_start_button_id = 0
+        self.atr_stop_button_id = 1
+        self.atr_display_button_id = 2
+        self.atr_save_button_id = 3
 
         self.remote_frame = ""
         self.atr_frame = ""
@@ -61,6 +74,20 @@ class CommonDialogVar:
 
         self.main_butt_width = 10
         self.main_butt_height = 1
+
+        # atr entry values
+        self.atr_freq = tkinter.StringVar()
+        self.atr_input_offset = tkinter.StringVar()
+        self.atr_output_offset = tkinter.StringVar()
+        self.atr_power_voltage = tkinter.StringVar()
+        self.atr_aging_time = tkinter.StringVar()
+        self.atr_rf_output = tkinter.StringVar()
+        self.atr_current = tkinter.StringVar()
+        self.atr_aging_left = tkinter.StringVar()
+        self.atr_system_option = False
+        self.atr_sys_fwd = tkinter.StringVar()
+        self.atr_sys_freq = tkinter.StringVar()
+        self.atr_sys_temp = tkinter.StringVar()
 
 
 class CommonVar:
@@ -121,6 +148,7 @@ class Excel(CommonVar, VariableDeclare):
         print(self.input_offset_var)
         print(self.output_offset_var)
         print(self.voltage_var)
+        print(self.aging_var)
 
         if self.save_hor is True:
             self.w_wb = Workbook()
@@ -289,13 +317,6 @@ class Excel(CommonVar, VariableDeclare):
 class Dialog(CommonDialogVar):
     def __init__(self):
         CommonDialogVar.__init__(self)
-        # excel instance call
-        self.exel = Excel()
-        # dialog set
-        self.g_root = tkinter.Tk()
-        self.g_root.protocol("WM_DELETE_WINDOW", self.root_close)
-        self.g_root.withdraw()
-        self.excel_path = ""
 
     def main_dialog_open(self):
         self.g_root = tkinter.Tk()
@@ -458,12 +479,6 @@ class Dialog(CommonDialogVar):
             if self.excel_path != "-1":
                 self.exel.load_excel_procedure(load_path=self.excel_path)
                 self.__new_window(self.atr_power_id)
-
-                # save excel dialog open
-                # self.save_file_dialog()
-                # if self.excel_path != "-1":
-                #     self.exel.save_all_var(save_path=self.excel_path)
-
         elif _id == self.atr_network_id:
             pass
         elif _id == self.atr_spectrum_id:
@@ -482,15 +497,227 @@ class Dialog(CommonDialogVar):
         elif _id == self.remote_all_id:
             pass
         elif _id == self.atr_power_id:
-            new_window.geometry("800x600")
+            new_window.geometry("700x500")
             new_window.title("Power ATR")
             new_window.iconbitmap("exodus.ico")
             new_window.resizable(False, False)
-            pass
+
+            entry_width = 15
+
+            # line_0
+            # panel label
+            label_panel = tkinter.Label(new_window, text="Power ATR", anchor="w")
+            label_panel.grid(row=0, column=0, columnspan=5, sticky="NEWS", padx=10, pady=10)
+
+            # line_1
+            # frequency label
+            label = tkinter.Label(new_window, text="Frequency")
+            label.grid(row=1, column=0, sticky="NEWS")
+            # input offset label
+            label = tkinter.Label(new_window, text="Input offset")
+            label.grid(row=1, column=1, sticky="NEWS")
+            # output offset label
+            label = tkinter.Label(new_window, text="Output offset")
+            label.grid(row=1, column=2, sticky="NEWS")
+            # Power voltage label
+            label = tkinter.Label(new_window, text="Power voltage")
+            label.grid(row=1, column=3, sticky="NEWS")
+            # Aging time label
+            label = tkinter.Label(new_window, text="Aging time")
+            label.grid(row=1, column=4, sticky="NEWS")
+
+            # line_2
+            # frequency entry
+            self.atr_freq = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_freq,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=0, sticky="NEWS")
+            self.atr_freq.set("1234")
+            # input offset entry
+            self.atr_input_offset = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_input_offset,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=1, sticky="NEWS")
+            # output offset entry
+            self.atr_output_offset = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_output_offset,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=2, sticky="NEWS")
+            # Power voltage entry
+            self.atr_power_voltage = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_power_voltage,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=3, sticky="NEWS")
+            # Aging time entry
+            self.atr_aging_time = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_aging_time,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=4, sticky="NEWS")
+
+            # line_3
+            # rf output label
+            label = tkinter.Label(new_window, text="RF Output    ", anchor="e")
+            label.grid(row=3, column=0, sticky="NEWS", columnspan=3)
+            # current label
+            label = tkinter.Label(new_window, text="Current")
+            label.grid(row=3, column=3, sticky="NEWS")
+            # aging time left label
+            label = tkinter.Label(new_window, text="Aging left")
+            label.grid(row=3, column=4, sticky="NEWS")
+
+            # line_4
+            # RF output entry
+            self.atr_rf_output = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_rf_output,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=4, column=0, sticky="NES", columnspan=3)
+            # Current entry
+            self.atr_current = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_current,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=4, column=3, sticky="NEWS")
+            # aging time left entry
+            self.atr_aging_left = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_aging_left,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=4, column=4, sticky="NEWS")
+
+            # line_5
+            # rf output label
+            label = tkinter.Label(new_window, text="  System option", anchor="w")
+            label.grid(row=5, column=0, sticky="NEWS", columnspan=2)
+            # System Forward Label
+            label = tkinter.Label(new_window, text="Sys Fwd")
+            label.grid(row=5, column=2, sticky="NEWS")
+            # System Frequency Label
+            label = tkinter.Label(new_window, text="Sys Freq")
+            label.grid(row=5, column=3, sticky="NEWS")
+            # System Temperature Label
+            label = tkinter.Label(new_window, text="Sys Temp")
+            label.grid(row=5, column=4, sticky="NEWS")
+
+            # line_6
+            # sys option checkbox
+            checkbox = tkinter.Checkbutton(new_window,
+                                           text="                      ",
+                                           command=self.atr_sys_opt_clicked)
+            checkbox.grid(row=6, column=0, columnspan=2, sticky="NEWS")
+            # sys fwd entry
+            self.atr_sys_fwd = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_sys_fwd,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=6, column=2, sticky="NEWS")
+            # sys freq entry
+            self.atr_sys_freq = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_sys_freq,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=6, column=3, sticky="NEWS")
+            # sys freq temp
+            self.atr_sys_temp = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_sys_temp,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=6, column=4, sticky="NEWS")
+
+            # line 7
+            # System cmd Label
+            label = tkinter.Label(new_window, text="Sys cmd")
+            label.grid(row=7, column=0, sticky="NEWS")
+
+            # line 8
+            # System cmd text
+            text = tkinter.Text(new_window, width=entry_width*4, height=10)
+            text.grid(row=8, column=0, sticky="NEWS", columnspan=5)
+
+            # line 9
+            # ATR start button
+            button = tkinter.Button(new_window,
+                                    text="START",
+                                    width=self.main_butt_width,
+                                    height=self.main_butt_height,
+                                    command=partial(self.__atr_button_clicked, self.atr_start_button_id))
+            button.grid(row=9, column=0, sticky="NEWS", columnspan=2)
+            # ATR stop button
+            button = tkinter.Button(new_window,
+                                    text="STOP",
+                                    width=self.main_butt_width,
+                                    height=self.main_butt_height,
+                                    command=partial(self.__atr_button_clicked, self.atr_stop_button_id))
+            button.grid(row=9, column=3, sticky="NEWS", columnspan=2)
+
+            # line 10
+            # ATR start button
+            button = tkinter.Button(new_window,
+                                    text="DISPLAY",
+                                    width=self.main_butt_width,
+                                    height=self.main_butt_height,
+                                    command=partial(self.__atr_button_clicked, self.atr_display_button_id))
+            button.grid(row=10, column=0, sticky="NEWS", columnspan=2)
+            # ATR stop button
+            button = tkinter.Button(new_window,
+                                    text="SAVE",
+                                    width=self.main_butt_width,
+                                    height=self.main_butt_height,
+                                    command=partial(self.__atr_button_clicked, self.atr_save_button_id))
+            button.grid(row=10, column=3, sticky="NEWS", columnspan=2)
         elif _id == self.atr_network_id:
             pass
         elif _id == self.atr_spectrum_id:
             pass
+
+    def __atr_button_clicked(self, _id):
+        if _id == self.atr_start_button_id:
+            pass
+        elif _id == self.atr_stop_button_id:
+            pass
+        elif _id == self.atr_display_button_id:
+            pass
+        elif _id == self.atr_save_button_id:
+            # save excel dialog open
+            self.save_file_dialog()
+            if self.excel_path != "-1":
+                self.exel.save_all_var(save_path=self.excel_path)
+            pass
+        else:
+            print("atr button id error")
+
+    def atr_sys_opt_clicked(self):
+        if self.atr_system_option:
+            self.atr_system_option = False
+        else:
+            self.atr_system_option = True
 
     def root_close(self):
         self.g_root.withdraw()

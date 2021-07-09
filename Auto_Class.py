@@ -7,7 +7,7 @@ import os
 from functools import partial
 
 
-class VariableDeclare:
+class ExcelVariableDeclare:
     def __init__(self, path):
         self.load_clear = True
         self.path = path
@@ -20,23 +20,36 @@ class VariableDeclare:
         self.freq_var = []
         self.input_offset_var = []
         self.output_offset_var = []
-        self.voltage_var = []
-        self.aging_var = []
+        self.voltage_var = ""
+        self.aging_var = ""
+        self.source_com_var = ""
+        self.power_com_var = ""
+        self.power_meter_com_var = ""
 
-        self.multiple_freq = 0
-        self.multiple_aging = 0
+        self.multiple_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.multiple_aging = 0  # sec, min, hour
+        self.source_comm_option = ""  # GPIB, USB, Serial
+        self.power_comm_option = ""  # GPIB, USB, Serial
+        self.power_meter_comm_option = ""  # GPIB, USB, Serial
 
-        self.freq_cell_name = ""
-        self.input_cell_name = ""
-        self.output_cell_name = ""
-        self.power_cell_name = ""
-        self.aging_cell_name = ""
+        self.freq_cell_name = ""  # default Frequency
+        self.input_cell_name = ""  # default Input offset
+        self.output_cell_name = ""  # default Output offset
+        self.power_cell_name = ""  # default Power Voltage
+        self.aging_cell_name = ""  # default Aging time
+        self.source_comm_cell_name = ""  # default Source generate
+        self.power_comm_cell_name = ""  # default Power supply
+        self.power_meter_comm_cell_name = ""  # default Power meter
+
+        self.source_baud_rate = ""  # default Source generate
+        self.power_baud_rate = ""  # default Power supply
+        self.power_baud_rate = ""  # default Power meter
 
 
 class CommonDialogVar:
     def __init__(self):
         # excel instance call
-        self.exel = Excel()
+        self.excel = Excel()
         # dialog set
         self.g_root = tkinter.Tk()
         self.g_root.protocol("WM_DELETE_WINDOW", self.root_close)
@@ -88,9 +101,16 @@ class CommonDialogVar:
         self.atr_sys_fwd = tkinter.StringVar()
         self.atr_sys_freq = tkinter.StringVar()
         self.atr_sys_temp = tkinter.StringVar()
+        self.atr_sys_cmd = tkinter.StringVar()
 
+        self.atr_source_com = tkinter.StringVar()
+        self.atr_power_com = tkinter.StringVar()
+        self.atr_power_meter_com = tkinter.StringVar()
 
-class CommonVar:
+        self.atr_rf_var = []
+        self.atr_current_var = []
+
+class ExcelCommonVar:
     def __init__(self):
         self.excel_data_name_row = 1
         self.excel_data_unit_row = 2
@@ -100,6 +120,7 @@ class CommonVar:
         self.excel_output_unit = ["dB"]
         self.excel_power_unit = ["V"]
         self.excel_aging_unit = ["sec", "min", "hour"]
+        self.excel_com_unit = ["GPIB", "USB", "Serial"]
         self.rf_power = []
 
         self.excel_freq_column = "A"
@@ -107,15 +128,18 @@ class CommonVar:
         self.excel_output_column = "C"
         self.excel_power_column = "D"
         self.excel_aging_column = "E"
+        self.excel_source_com_column = "F"
+        self.excel_power_com_column = "G"
+        self.excel_power_meter_com_column = "H"
         self.save_hor = True
 
 
-class Excel(CommonVar, VariableDeclare):
+class Excel(ExcelCommonVar, ExcelVariableDeclare):
     def __init__(self, path=""):
-        CommonVar.__init__(self)
-        VariableDeclare.__init__(self, path)
+        ExcelCommonVar.__init__(self)
+        ExcelVariableDeclare.__init__(self, path)
 
-    def load_excel_procedure(self, load_path):
+    def load_power_atr_excel_procedure(self, load_path):
         self.path = load_path
         self.__load_xls_sheet_all()
         self.__get_offset_procedure_version_0()
@@ -127,6 +151,9 @@ class Excel(CommonVar, VariableDeclare):
         self.l_wb = load_workbook(self.path, data_only=True)
         ws_name = self.l_wb.get_sheet_names()
 
+        while len(self.l_ws_list) != 0:
+            self.l_ws_list.pop()
+            print("clean l_ws_list")
         # Load all work sheet
         for i in range(0, len(ws_name)):
             self.l_ws_list.append(self.l_wb[ws_name[i]])
@@ -142,28 +169,70 @@ class Excel(CommonVar, VariableDeclare):
     #     else:
     #         self.l_ws_list[sheet_num] = self.l_wb[ws_name[sheet_num]]
 
-    def save_all_var(self, save_path):
+    def save_all_var(self, save_path, rf_var, curr_var):
         # test var
         print(self.freq_var)
         print(self.input_offset_var)
         print(self.output_offset_var)
         print(self.voltage_var)
         print(self.aging_var)
+        print(self.source_com_var)
+        print(self.power_com_var)
+        print(self.power_meter_com_var)
 
         if self.save_hor is True:
+            freq_row = 1
+            rf_dbm_row = 2
+            rf_w_row = 3
+            current_row = 4
+            atr_column = 1
+
+            # test code
+            # for var in range(0, len(self.freq_var)):
+            #     rf_var.append(var)
+            #     curr_var.append(len(self.freq_var) - var)
+
+            if (len(rf_var) <= 0) and (len(curr_var) <= 0):
+                pg.alert(text="No data exist",
+                         title="Error",
+                         button="확인")
+                return;
+
+            if (len(rf_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+                pg.alert(text="RF data error\n" + "ex) ATR not started",
+                         title="Error",
+                         button="확인")
+                return;
+
+            if (len(curr_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+                pg.alert(text="Current data error\n" + "ex) ATR not started",
+                         title="Error",
+                         button="확인")
+                return;
+
             self.w_wb = Workbook()
             self.w_ws_list.append(self.w_wb.create_sheet("ATR"))
 
             self.w_ws_list[0] = self.w_wb.active
-            self.w_ws_list[0].cell(1, 1, "frequency")
-            self.w_ws_list[0].cell(2, 1, "rf output_0")
-            self.w_ws_list[0].cell(3, 1, "rf output_1")
-            self.w_ws_list[0].cell(4, 1, "current")
+            self.w_ws_list[0].cell(freq_row, atr_column, "frequency")
+            self.w_ws_list[0].cell(rf_dbm_row, atr_column, "rf output_0")
+            self.w_ws_list[0].cell(rf_w_row, atr_column, "rf output_1")
+            self.w_ws_list[0].cell(current_row, atr_column, "current")
+            atr_column += 1
+            self.w_ws_list[0].cell(freq_row, atr_column, "Hz")
+            self.w_ws_list[0].cell(rf_dbm_row, atr_column, "dBm")
+            self.w_ws_list[0].cell(rf_w_row, atr_column, "W")
+            self.w_ws_list[0].cell(current_row, atr_column, "A")
+            atr_column += 1
 
-            self.w_ws_list[0].cell(1, 2, "Hz")
-            self.w_ws_list[0].cell(2, 2, "dBm")
-            self.w_ws_list[0].cell(3, 2, "W")
-            self.w_ws_list[0].cell(4, 2, "A")
+            var_index = 0
+            while len(self.freq_var) > var_index:
+                self.w_ws_list[0].cell(freq_row, atr_column, self.freq_var[var_index])
+                self.w_ws_list[0].cell(rf_dbm_row, atr_column, rf_var[var_index])
+                self.w_ws_list[0].cell(rf_w_row, atr_column, (10 ** (rf_var[var_index] / 10) / 1000))
+                self.w_ws_list[0].cell(current_row, atr_column, curr_var[var_index])
+                var_index += 1
+                atr_column += 1
 
             self.w_wb.save(save_path)
         else:  # save vertical atr
@@ -178,140 +247,203 @@ class Excel(CommonVar, VariableDeclare):
         # 3. check output offset
         # 4. check power voltage
         # 5. check start aging time
-        # 6. freq load
-        # 7. input db load
-        # 8. output db load
-        # 9. Voltage load
-        # 10. Start aging time load
+        # 6. check source generate communication
+        # 7. check power supply communication
+        # 8. check power meter communication
+        # 9. load freq
+        # 10. load input db
+        # 11. load output db
+        # 12. load Voltage
+        # 13. load Start aging time
+        # 14. load source generate communication
+        # 15. load power supply communication
+        # 16. load power meter communication
 
         # 1. freq config
-        self.multiple_freq = 0
-        d_name_cell = self.excel_freq_column + str(self.excel_data_name_row)
-        self.freq_cell_name = d_name_cell
-        d_unit_cell = self.excel_freq_column + str(self.excel_data_unit_row)
-        if self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[0]:
-            self.multiple_freq = 1
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[1]:
-            self.multiple_freq = 1 * 1000
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[2]:
-            self.multiple_freq = 1 * 1000 * 1000
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[3]:
-            self.multiple_freq = 1 * 1000 * 1000 * 1000
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[4]:
-            self.multiple_freq = 1 * 1000 * 1000 * 1000 * 1000
-        else:
-            print("Hz not defined")
-            pg.alert(text="freq unit 설정되지 않음\n" + "ex) Hz, KHz, MHz, GHz, THz",
-                     title="Error",
-                     button="확인")
-            self.load_clear = False
-            return
-
+        self.__get_unit_from_column(self.excel_freq_column)
         # 2. check input offset
-        d_name_cell = self.excel_input_column + str(self.excel_data_name_row)
-        self.input_cell_name = d_name_cell
-        d_unit_cell = self.excel_input_column + str(self.excel_data_unit_row)
-        if self.l_ws_list[0][d_unit_cell].value != self.excel_input_unit[0]:
-            print("dB not defined")
-            pg.alert(text="input offset unit 설정되지 않음\n" + "ex) dB",
-                     title="Error",
-                     button="확인")
-            self.load_clear = False
-            return
-
+        self.__get_unit_from_column(self.excel_input_column)
         # 3. check output offset
-        d_name_cell = self.excel_output_column + str(self.excel_data_name_row)
-        self.output_cell_name = d_name_cell
-        d_unit_cell = self.excel_output_column + str(self.excel_data_unit_row)
-        if self.l_ws_list[0][d_unit_cell].value != self.excel_output_unit[0]:
-            print("dB not defined")
-            pg.alert(text="output offset unit 설정되지 않음\n" + "ex) dB",
-                     title="Error",
-                     button="확인")
-            self.load_clear = False
-            return
+        self.__get_unit_from_column(self.excel_output_column)
         # 4. check power voltage
-        d_name_cell = self.excel_power_column + str(self.excel_data_name_row)
-        self.power_cell_name = d_name_cell
-        d_unit_cell = self.excel_power_column + str(self.excel_data_unit_row)
-        if self.l_ws_list[0][d_unit_cell].value != self.excel_power_unit[0]:
-            print("V not defined")
-            pg.alert(text="Power voltage unit 설정되지 않음\n" + "ex) V",
-                     title="Error",
-                     button="확인")
-            self.load_clear = False
-            return
-
+        self.__get_unit_from_column(self.excel_power_column)
         # 5. check start aging time
-        self.multiple_aging = 0
-        d_name_cell = self.excel_aging_column + str(self.excel_data_name_row)
-        self.aging_cell_name = d_name_cell
-        d_unit_cell = self.excel_aging_column + str(self.excel_data_unit_row)
-        if self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[0]:
-            self.multiple_aging = 1
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[1]:
-            self.multiple_aging = 1 * 60
-        elif self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[2]:
-            self.multiple_aging = 1 * 60 * 60
-        else:
-            print("aging time not defined")
-            pg.alert(text="Start aging time unit 설정되지 않음\n" + "ex) sec, min, hour",
-                     title="Error",
-                     button="확인")
-            self.load_clear = False
-            return
-        # 6. freq load
+        self.__get_unit_from_column(self.excel_aging_column)
+        # 6. check source generate communication
+        self.__get_unit_from_column(self.excel_source_com_column)
+        # 7. check power supply communication
+        self.__get_unit_from_column(self.excel_power_com_column)
+        # 8. check power meter communication
+        self.__get_unit_from_column(self.excel_power_meter_com_column)
+        # 9. load freq
         self.__load_var_from_column(self.excel_freq_column)
-        # 7. input db load
+        # 10. load input db
         self.__load_var_from_column(self.excel_input_column)
-        # 8. output db load
+        # 11. load output db
         self.__load_var_from_column(self.excel_output_column)
-        # 9. Voltage load
+        # 12. load Voltage
         self.__load_var_from_column(self.excel_power_column)
-        # 10. Start aging time load
+        # 13. load Start aging time
         self.__load_var_from_column(self.excel_aging_column)
+        # 14. load source generate communication
+        self.__load_var_from_column(self.excel_source_com_column)
+        # 15. load power supply communication
+        self.__load_var_from_column(self.excel_power_com_column)
+        # 16. load power meter communication
+        self.__load_var_from_column(self.excel_power_meter_com_column)
+
+    def __get_unit_from_column(self, column):
+
+        d_name_cell = column + str(self.excel_data_name_row)
+        d_unit_cell = column + str(self.excel_data_unit_row)
+        if column == self.excel_freq_column:
+            self.multiple_freq = 0
+            self.freq_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[0]:
+                self.multiple_freq = 1
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[1]:
+                self.multiple_freq = 1 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[2]:
+                self.multiple_freq = 1 * 1000 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[3]:
+                self.multiple_freq = 1 * 1000 * 1000 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[4]:
+                self.multiple_freq = 1 * 1000 * 1000 * 1000 * 1000
+            else:
+                print("Hz not defined")
+                pg.alert(text="freq unit 설정되지 않음\n" + "ex) Hz, KHz, MHz, GHz, THz",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_input_column:
+            self.input_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value != self.excel_input_unit[0]:
+                print("dB not defined")
+                pg.alert(text="input offset unit 설정되지 않음\n" + "ex) dB",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_output_column:
+            self.output_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value != self.excel_output_unit[0]:
+                print("dB not defined")
+                pg.alert(text="output offset unit 설정되지 않음\n" + "ex) dB",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_power_column:
+            self.power_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value != self.excel_power_unit[0]:
+                print("V not defined")
+                pg.alert(text="Power voltage unit 설정되지 않음\n" + "ex) V",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_aging_column:
+            self.multiple_aging = 0
+            self.aging_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[0]:
+                self.multiple_aging = 1
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[1]:
+                self.multiple_aging = 1 * 60
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_aging_unit[2]:
+                self.multiple_aging = 1 * 60 * 60
+            else:
+                print("aging time not defined")
+                pg.alert(text="Start aging time unit 설정되지 않음\n" + "ex) sec, min, hour",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_source_com_column:
+            self.source_comm_option = ""
+            self.source_comm_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[0]:
+                self.source_comm_option = self.excel_com_unit[0]  # GPIB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[1]:
+                self.source_comm_option = self.excel_com_unit[1]  # USB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
+                self.source_comm_option = self.excel_com_unit[2]  # Serial
+                self.source_baud_rate = self.l_ws_list[0][d_unit_cell + 1].value
+            else:
+                print("Source communication option error")
+                pg.alert(text="Source communication unit 설정되지 않음\n"
+                              + "ex) GPIB, USB, Serial\nSerial baud rate 필요",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_power_com_column:
+            self.source_comm_option = ""
+            self.source_comm_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[0]:
+                self.source_comm_option = self.excel_com_unit[0]  # GPIB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[1]:
+                self.source_comm_option = self.excel_com_unit[1]  # USB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
+                self.source_comm_option = self.excel_com_unit[2]  # Serial
+                self.source_baud_rate = self.l_ws_list[0][d_unit_cell + 1].value
+            else:
+                print("Power supply communication option error")
+                pg.alert(text="Power supply communication unit 설정되지 않음\n"
+                              + "ex) GPIB, USB, Serial\nSerial baud rate 필요",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_power_meter_com_column:
+            self.source_comm_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[0]:
+                self.source_comm_option = self.excel_com_unit[0]  # GPIB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[1]:
+                self.source_comm_option = self.excel_com_unit[1]  # USB
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
+                self.source_comm_option = self.excel_com_unit[2]  # Serial
+            else:
+                print("Power meter communication option error")
+                pg.alert(text="Power meter communication unit 설정되지 않음\n"
+                              + "ex) GPIB, USB, Serial\nSerial baud rate 필요",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        else:
+            print("알수없는 communication column")
+            self.load_clear = False
 
     def __load_var_from_column(self, data_column):
         i = self.excel_data_start_row
-        if data_column == self.excel_freq_column:
-            freq_data_cell = self.excel_freq_column + str(i)
-            while self.l_ws_list[0][freq_data_cell].value is not None:
-                print(self.l_ws_list[0][freq_data_cell].value * self.multiple_freq)
-                self.freq_var.append(self.l_ws_list[0][freq_data_cell].value * self.multiple_freq)
-                i += 1
-                freq_data_cell = self.excel_freq_column + str(i)
-        elif data_column == self.excel_input_column:
-            input_data_cell = self.excel_input_column + str(i)
-            while self.l_ws_list[0][input_data_cell].value is not None:
-                print(self.l_ws_list[0][input_data_cell].value)
-                self.input_offset_var.append(self.l_ws_list[0][input_data_cell].value)
-                i += 1
-                input_data_cell = self.excel_input_column + str(i)
-        elif data_column == self.excel_output_column:
-            i = self.excel_data_start_row
-            output_data_cell = self.excel_output_column + str(i)
-            while self.l_ws_list[0][output_data_cell].value is not None:
-                print(self.l_ws_list[0][output_data_cell].value)
-                self.output_offset_var.append(self.l_ws_list[0][output_data_cell].value)
-                i += 1
-                output_data_cell = self.excel_output_column + str(i)
-        elif data_column == self.excel_power_column:
-            i = self.excel_data_start_row
-            voltage_data_cell = self.excel_power_column + str(i)
-            while self.l_ws_list[0][voltage_data_cell].value is not None:
-                print(self.l_ws_list[0][voltage_data_cell].value)
-                self.voltage_var.append(self.l_ws_list[0][voltage_data_cell].value)
-                i += 1
-                voltage_data_cell = self.excel_power_column + str(i)
-        elif data_column == self.excel_aging_column:
-            aging_data_cell = self.excel_aging_column + str(i)
-            while self.l_ws_list[0][aging_data_cell].value is not None:
-                print(self.l_ws_list[0][aging_data_cell].value * self.multiple_aging)
-                self.aging_var.append(self.l_ws_list[0][aging_data_cell].value * self.multiple_aging)
-                i += 1
-                aging_data_cell = self.excel_power_column + str(i)
-        else:
-            print("Error 등록되지 않은 id")
+
+        _data_cell = data_column + str(i)
+        while self.l_ws_list[0][_data_cell].value is not None:
+            print(self.l_ws_list[0][_data_cell].value)
+            # check column
+            if data_column == self.excel_freq_column:
+                self.freq_var.append(self.l_ws_list[0][_data_cell].value * self.multiple_freq)
+            elif data_column == self.excel_input_column:
+                self.input_offset_var.append(self.l_ws_list[0][_data_cell].value)
+            elif data_column == self.excel_output_column:
+                self.output_offset_var.append(self.l_ws_list[0][_data_cell].value)
+            elif data_column == self.excel_power_column:
+                self.voltage_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_aging_column:
+                self.aging_var = self.l_ws_list[0][_data_cell].value * self.multiple_aging
+            elif data_column == self.excel_source_com_column:
+                self.source_com_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_power_com_column:
+                self.power_com_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_power_meter_com_column:
+                self.power_meter_com_var = self.l_ws_list[0][_data_cell].value
+            else:
+                print("Error 등록되지 않은 id")
+                self.load_clear = False
+                return;
+            i += 1
+            _data_cell = data_column + str(i)
 
 
 class Dialog(CommonDialogVar):
@@ -477,8 +609,8 @@ class Dialog(CommonDialogVar):
             # load excel dialog open
             self.load_file_dialog()
             if self.excel_path != "-1":
-                self.exel.load_excel_procedure(load_path=self.excel_path)
-                self.__new_window(self.atr_power_id)
+                self.excel.load_power_atr_excel_procedure(load_path=self.excel_path)
+                self.__new_window(_id=self.atr_power_id)
         elif _id == self.atr_network_id:
             pass
         elif _id == self.atr_spectrum_id:
@@ -506,7 +638,7 @@ class Dialog(CommonDialogVar):
 
             # line_0
             # panel label
-            label_panel = tkinter.Label(new_window, text="Power ATR", anchor="w")
+            label_panel = tkinter.Label(new_window, text="", anchor="w")
             label_panel.grid(row=0, column=0, columnspan=5, sticky="NEWS", padx=10, pady=10)
 
             # line_1
@@ -529,15 +661,25 @@ class Dialog(CommonDialogVar):
             # line_2
             # frequency entry
             self.atr_freq = tkinter.StringVar(new_window)
+            if self.excel.freq_var[0] >= 1000000000000:
+                self.atr_freq.set("{0} THz".format(self.excel.freq_var[0]/1000000000000))
+            elif self.excel.freq_var[0] >= 1000000000:
+                self.atr_freq.set("{0} GHz".format(self.excel.freq_var[0]/1000000000))
+            elif self.excel.freq_var[0] >= 1000000:
+                self.atr_freq.set("{0} MHz".format(self.excel.freq_var[0]/1000000))
+            elif self.excel.freq_var[0] >= 1000:
+                self.atr_freq.set("{0} KHz".format(self.excel.freq_var[0]/1000))
+            else:
+                self.atr_freq.set("{0} Hz".format(self.excel.freq_var[0]))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_freq,
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
             entry.grid(row=2, column=0, sticky="NEWS")
-            self.atr_freq.set("1234")
             # input offset entry
             self.atr_input_offset = tkinter.StringVar(new_window)
+            self.atr_input_offset.set("{0} dB".format(self.excel.input_offset_var[0]))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_input_offset,
                                   width=entry_width,
@@ -546,6 +688,7 @@ class Dialog(CommonDialogVar):
             entry.grid(row=2, column=1, sticky="NEWS")
             # output offset entry
             self.atr_output_offset = tkinter.StringVar(new_window)
+            self.atr_output_offset.set("{0} dB".format(self.excel.output_offset_var[0]))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_output_offset,
                                   width=entry_width,
@@ -554,6 +697,7 @@ class Dialog(CommonDialogVar):
             entry.grid(row=2, column=2, sticky="NEWS")
             # Power voltage entry
             self.atr_power_voltage = tkinter.StringVar(new_window)
+            self.atr_power_voltage.set("{0} V".format(self.excel.voltage_var))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_power_voltage,
                                   width=entry_width,
@@ -562,6 +706,7 @@ class Dialog(CommonDialogVar):
             entry.grid(row=2, column=3, sticky="NEWS")
             # Aging time entry
             self.atr_aging_time = tkinter.StringVar(new_window)
+            self.atr_aging_time.set("{0} sec".format(self.excel.aging_var))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_aging_time,
                                   width=entry_width,
@@ -633,7 +778,7 @@ class Dialog(CommonDialogVar):
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
-            entry.grid(row=6, column=2, sticky="NEWS")
+            entry.grid(row=6, column=2, sticky="EW")
             # sys freq entry
             self.atr_sys_freq = tkinter.StringVar(new_window)
             entry = tkinter.Entry(new_window,
@@ -641,7 +786,7 @@ class Dialog(CommonDialogVar):
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
-            entry.grid(row=6, column=3, sticky="NEWS")
+            entry.grid(row=6, column=3, sticky="EW")
             # sys freq temp
             self.atr_sys_temp = tkinter.StringVar(new_window)
             entry = tkinter.Entry(new_window,
@@ -649,17 +794,57 @@ class Dialog(CommonDialogVar):
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
-            entry.grid(row=6, column=4, sticky="NEWS")
+            entry.grid(row=6, column=4, sticky="EW")
 
             # line 7
             # System cmd Label
-            label = tkinter.Label(new_window, text="Sys cmd")
-            label.grid(row=7, column=0, sticky="NEWS")
+            label = tkinter.Label(new_window, text="Sys cmd", anchor="w")
+            label.grid(row=7, column=0, sticky="NEWS", columnspan=2)
+            # Source communication label
+            label = tkinter.Label(new_window, text="Source com")
+            label.grid(row=7, column=2, sticky="NEWS")
+            # Power supply communication label
+            label = tkinter.Label(new_window, text="Power com")
+            label.grid(row=7, column=3, sticky="NEWS")
+            # Power meter communication label
+            label = tkinter.Label(new_window, text="Power_m com")
+            label.grid(row=7, column=4, sticky="NEWS")
 
             # line 8
             # System cmd text
-            text = tkinter.Text(new_window, width=entry_width*4, height=10)
-            text.grid(row=8, column=0, sticky="NEWS", columnspan=5)
+            self.atr_sys_cmd = tkinter.StringVar(new_window)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_sys_cmd,
+                                  width=entry_width*2,
+                                  justify="center")
+            entry.grid(row=8, column=0, sticky="EW", columnspan=2)
+            # source communication entry
+            self.atr_source_com = tkinter.StringVar(new_window)
+            self.atr_source_com.set(self.excel.source_com_var)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_source_com,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=8, column=2, sticky="EW")
+            # power supply communication entry
+            self.atr_power_com = tkinter.StringVar(new_window)
+            self.atr_power_com.set(self.excel.power_com_var)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_power_com,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=8, column=3, sticky="EW")
+            # power meter communication entry
+            self.atr_power_meter_com = tkinter.StringVar(new_window)
+            self.atr_power_meter_com.set(self.excel.power_meter_com_var)
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_power_meter_com,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=8, column=4, sticky="EW")
 
             # line 9
             # ATR start button
@@ -675,7 +860,7 @@ class Dialog(CommonDialogVar):
                                     width=self.main_butt_width,
                                     height=self.main_butt_height,
                                     command=partial(self.__atr_button_clicked, self.atr_stop_button_id))
-            button.grid(row=9, column=3, sticky="NEWS", columnspan=2)
+            button.grid(row=9, column=2, sticky="NEWS", columnspan=2)
 
             # line 10
             # ATR start button
@@ -691,7 +876,7 @@ class Dialog(CommonDialogVar):
                                     width=self.main_butt_width,
                                     height=self.main_butt_height,
                                     command=partial(self.__atr_button_clicked, self.atr_save_button_id))
-            button.grid(row=10, column=3, sticky="NEWS", columnspan=2)
+            button.grid(row=10, column=2, sticky="NEWS", columnspan=2)
         elif _id == self.atr_network_id:
             pass
         elif _id == self.atr_spectrum_id:
@@ -703,15 +888,36 @@ class Dialog(CommonDialogVar):
         elif _id == self.atr_stop_button_id:
             pass
         elif _id == self.atr_display_button_id:
+            self.atr_display_clicked(rf_var=self.atr_rf_var,
+                                     curr_var=self.atr_current_var)
             pass
         elif _id == self.atr_save_button_id:
             # save excel dialog open
             self.save_file_dialog()
             if self.excel_path != "-1":
-                self.exel.save_all_var(save_path=self.excel_path)
+                self.excel.save_all_var(save_path=self.excel_path,
+                                        rf_var=self.atr_rf_var,
+                                        curr_var=self.atr_current_var)
             pass
         else:
             print("atr button id error")
+
+    def atr_display_clicked(self, rf_var, curr_var):
+        if (len(rf_var) <= 0) and (len(curr_var) <= 0):
+            pg.alert(text="No data exist",
+                     title="Error",
+                     button="확인")
+            return;
+        if (len(rf_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+            pg.alert(text="RF data error\n" + "ex) ATR not started",
+                     title="Error",
+                     button="확인")
+            return;
+        if (len(curr_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+            pg.alert(text="Current data error\n" + "ex) ATR not started",
+                     title="Error",
+                     button="확인")
+            return;
 
     def atr_sys_opt_clicked(self):
         if self.atr_system_option:

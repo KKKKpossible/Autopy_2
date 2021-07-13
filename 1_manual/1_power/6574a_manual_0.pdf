@@ -1,0 +1,1803 @@
+
+<!DOCTYPE html>
+<html class="no-js" lang="ko-KR">
+	<head>
+
+<title>654xA/655xA/657xA Operating Manual | Keysight</title>
+<script>
+    //prehiding snippet for Adobe Target with asynchronous Launch deployment
+    (function(g,b,d,f){(function(a,c,d){if(a){var e=b.createElement("style");e.id=c;e.innerHTML=d;a.appendChild(e)}})(b.getElementsByTagName("head")[0],"at-body-style",d);setTimeout(function(){var a=b.getElementsByTagName("head")[0];if(a){var c=b.getElementById("at-body-style");c&&a.removeChild(c)}},f)})(window,document,"body {opacity: 0 !important}",3E3);
+</script>
+
+
+
+<script src="//assets.adobedtm.com/af12bb6c0390/72bacf88cf73/launch-f451446a59d2.min.js" async></script>
+
+<link href="/etc/designs/keysight/clienlibs/fonts/fonts.css" rel="stylesheet" type="text/css"/>
+
+
+    
+<link rel="stylesheet" href="/etc/designs/keysight/clienlibs/head.min.ea4b337e712a12db6d18fba670eb0cf3.css" type="text/css">
+<link rel="stylesheet" href="/etc/designs/keysight/clienlibs/ocp.min.99f534d6b9449a372f77440de90a9ea6.css" type="text/css">
+
+
+
+<!-- 
+<meta data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" data-sly-call="" data-sly-unwrap>
+</meta>
+ -->
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="index,follow"/>
+<meta name="content-type" content="user-manuals"/>
+<meta name="pub-key" content="9018-01113"/>
+<meta name="pub-suffix" content="EN"/>
+<meta name="pub-num" content="5959-3374"/>
+<meta name="pub-date" content="2004.06.30"/>
+<meta name="interaction-type" content="AEM gated asset"/>
+<meta name="description" content="Part number 5959-3376. Operating guide for models 6541A, 6542A, 6543A, 6544A, 6545A, 6551A, 6552A, 6553A, 6554A, 6555A, 6641A, 6642A, 6643A, 6644A, 6645A, 6651A, 6652A, 6653A, 6654A, 6655A."/>
+<meta name="keywords" content="6541A,6551A,6571A"/>
+
+
+    
+		
+    
+<script type="text/javascript" src="/etc/designs/keysight/clienlibs/keysight-jquery.min.9b4a6f60fbc53c0c219d745dff545d41.js"></script>
+
+
+
+	
+    
+
+    
+    
+</meta>
+
+
+<!-- Translation meta tag -->
+
+
+
+
+
+
+<meta name="translation-status" content="not translated"/>
+
+<meta name="translation-lang" content="ko"/>
+
+
+<!-- GDPR changes -->
+<meta name="EUFlag" content="true"/>
+
+
+<meta name="author" content="Keysight"/>
+<meta name="apple-mobile-web-app-title" content="Keysight"/>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+<meta name="page-data" english-name="654xA/655xA/657xA Operating Manual" models="6541A;6542A;6543A;6544A;6545A;6551A;6552A;6553A;6554A;6555A;6571A;6572A;6573A;6574A;6575A"/>
+
+		<meta name="models" content="6541a,6542a,6543a,6544a,6545a,6551a,6552a,6553a,6554a,6555a,6571a,6572a,6573a,6574a,6575a"/>
+
+<!-- Open Graph data -->
+<meta property="og:title" content="654xA/655xA/657xA Operating Manual"/>
+<meta property="og:url" content="https://www.keysight.com/kr/ko/assets/9018-01113/user-manuals/9018-01113.pdf"/>
+<meta property="og:locale" content="ko"/>
+<meta property="og:image" content="/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/jcr:content/renditions/cq5dam.Standard Image.1280.1280.jpeg"/>
+<meta property="og:description" content="Part number 5959-3376. Operating guide for models 6541A, 6542A, 6543A, 6544A, 6545A, 6551A, 6552A, 6553A, 6554A, 6555A, 6641A, 6642A, 6643A, 6644A, 6645A, 6651A, 6652A, 6653A, 6654A, 6655A."/>
+<meta property="og:site_name" content="Keysight"/>
+
+<meta property="article:modified_time" content="2021-01-18T05:32:36.492-07:00"/>
+<meta property="article:section" content="Article Section"/>
+<meta property="article:tag" content="Article Section"/>
+<meta property="fb:admins" content="Keysight"/>
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/jcr:content/renditions/cq5dam.Standard Image.1280.1280.jpeg"/>
+<meta name="twitter:site" content="@Keysight"/>
+<meta name="twitter:title" content="654xA/655xA/657xA Operating Manual"/>
+<meta name="twitter:description" content="Part number 5959-3376. Operating guide for models 6541A, 6542A, 6543A, 6544A, 6545A, 6551A, 6552A, 6553A, 6554A, 6555A, 6641A, 6642A, 6643A, 6644A, 6645A, 6651A, 6652A, 6653A, 6654A, 6655A."/>
+<meta name="twitter:creator" content="@Keysight"/>
+<meta name="twitter:image:src" content="/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/jcr:content/renditions/cq5dam.Standard Image.1280.1280.jpeg"/>
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="654xA/655xA/657xA Operating Manual"/>
+<meta itemprop="description" content="Part number 5959-3376. Operating guide for models 6541A, 6542A, 6543A, 6544A, 6545A, 6551A, 6552A, 6553A, 6554A, 6555A, 6641A, 6642A, 6643A, 6644A, 6645A, 6651A, 6652A, 6653A, 6654A, 6655A."/>
+<meta itemprop="image" content="/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/jcr:content/renditions/cq5dam.Standard Image.1280.1280.jpeg"/>
+
+<!-- /* Datalayer Clientlibs */-->
+
+    
+<script type="text/javascript" src="/etc/designs/keysight/clienlibs/dtm-clientlibs.min.f21410a090850eb5c270eebcf9c70a20.js"></script>
+
+
+
+
+
+<!--<sly data-sly-resource="contexthub" />-->
+
+
+
+<link rel="canonical" href="https://www.keysight.com/kr/ko/assets/9018-01113/user-manuals/9018-01113.pdf"/>
+
+<!-- Serve one icon for all Apple devices -->
+<link rel="apple-touch-icon-precomposed" href="/etc/designs/keysight/img/content/touch-icon.png"/>
+<!-- icon and tile color in hex # for Windows phones -->
+<meta name="msapplication-TileImage" content="/etc/designs/keysight/img/content/touch-icon.png"/>
+<meta name="msapplication-TileColor" content="#e55030"/>
+<!-- For everything else -->
+<link rel="icon" type="image/png" href="/etc/designs/keysight/img/content/favicon.png"/>
+<!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+
+
+    <script>
+        (function(window, document) {
+            // cookie reader by Lea Verou: http://lea.verou.me/2009/12/reading-cookies-the-regular-expression-way/
+            var cookieManager = {};
+            var cookieDomain = '.keysight.com';
+
+            cookieManager.getCookie = function getCookie(name) {
+                // Escape regexp special characters
+                name = name.replace(/([.*+?^=!:()|[\]\/\\])/g, '\\$1');
+
+                const regex = new RegExp('(?:^|;)\\s?' + name + '=(.*?)(?:;|$)', 'i'),
+                    match = document.cookie.match(regex);
+
+                return match && unescape(match[1]);
+            };
+
+            cookieManager.setCookie = function setCookie(name, value, expireTime) {
+                document.cookie = name + '=' + value + '; path=/' + '; domain=' + cookieDomain + '; expires=' + expireTime;
+            };
+			
+            var userCredentialsCookie = cookieManager.getCookie('USER_CREDENTIALS');
+            var  ssoId= cookieManager.getCookie('ssoid');
+			var chkPassive = cookieManager.getCookie('chkPassive');
+            var loggedInCookie = cookieManager.getCookie('IS_LOGGED_IN');
+            var currentTimeStamp = Math.floor(new Date().valueOf() / 1000);
+            //var returnCookie = cookieManager.getCookie('AEMReturnURL');
+
+            // Check if the ssoid cookie is set to valid and we don't have an AEM login token.
+            if (currentTimeStamp < ssoId && !loggedInCookie) {
+                // Create return URL cookie.
+                //var milsToMin = 1000 * 60;
+                //var expireTime = new Date((5 * milsToMin) + Date.now()).toUTCString()
+                //cookieManager.setCookie('AEMReturnURL', window.location.href, expireTime); 
+
+                // Redirect to passive SAML page.
+                window.location = 'https:\/\/www.keysight.com\/us\/en\/passive\u002Dsaml.login.html?env=https%3A%2F%2Fwww.keysight.com%2Fkr%2Fko%2Fassets%2F9018\u002D01113%2Fuser\u002Dmanuals%2F9018\u002D01113.pdf';
+            } /*else if (chkPassive && chkPassive === 'true' && !loggedInCookie) {
+				//var milsToMin = 1000 * 60;
+                //var expireTime = new Date((5 * milsToMin) + Date.now()).toUTCString()
+                //cookieManager.setCookie('AEMReturnURL', window.location.href, expireTime); 
+
+                // Redirect to passive SAML page.
+                window.location = 'https:\/\/www.keysight.com\/us\/en\/passive\u002Dsaml.login.html?env=https%3A%2F%2Fwww.keysight.com%2Fkr%2Fko%2Fassets%2F9018\u002D01113%2Fuser\u002Dmanuals%2F9018\u002D01113.pdf';
+			}*/
+        })(window, document);
+    </script>
+ 
+
+
+
+<script type="text/javascript">
+    document.domain="keysight.com"; 
+</script>
+
+<script>
+   var rootHtmlTag = document.querySelector("html");
+   rootHtmlTag.className = rootHtmlTag.className.replace(/\bno-js\b/,'') + " has-js";
+   if(!navigator.cookieEnabled)
+	rootHtmlTag.className += " no-cookies";
+</script>
+<script>
+	function resizeCTAButtons() {
+					function fixButtonSize(buttons) {
+									var maxWidth = 0;
+									buttons.each(function() {
+													var w = this.offsetWidth;
+													this.style.width = 'auto';
+													maxWidth = Math.max(maxWidth, this.offsetWidth);
+													this.style.width = (w + 1) + 'px';
+									});
+									buttons.each(function() {
+													this.style.width = (maxWidth + 1) + 'px';
+													this.className += ' resized';
+									});
+					}
+					function resizeButtons() {
+									var $this = $(this);
+									$this.find('.btn').removeClass('resized');
+									$this.find('.layout-multicolumn .layout-multicolumn').each(resizeButtons);
+									fixButtonSize($this.find('.left-wide > div:first-child .btn:not(.resized)'));
+									fixButtonSize($this.find('.left-wide > div + div .btn:not(.resized)'));
+									fixButtonSize($this.find('.right-wide > div:first-child .btn:not(.resized)'));
+									fixButtonSize($this.find('.right-wide > div + div .btn:not(.resized)'));
+									fixButtonSize($this.find('.two-columns .two-columns .btn:not(.resized)'));
+									fixButtonSize($this.find('.btn:not(.resized)'));
+									$this.addClass('.btn-resized');
+					}
+					$('#mainsection .wrapper:not(.btn-resized)').each(resizeButtons);
+	}
+</script>
+
+</head>
+        <body data-mode="publish">
+		<!-- Show or hide form fields using OTB script -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				if (typeof $.cookie('AG_LOCALE') !== 'undefined') {
+					var localeCookieCountryCode = $.cookie('AG_LOCALE').substring(0, 2);
+					$('input[name="ecom_country"]').val(localeCookieCountryCode);
+				}
+				if (typeof $.cookie('partner_type') !== 'undefined') {
+					$('input[name="ecom_partner"]').val('true');
+				}
+			});
+		</script>
+		
+		<div id="pagePath" data-path="/content/keysight/kr/ko/other/gate-page-postsales"></div>
+		
+			<input type="hidden" id="elasticPathUrl" value="https://www.keysight.com/api"/>
+			<input type="hidden" id="cartPageUrl" value="https://www.keysight.com/kr/ko/ecom/cart-page.html"/>
+		
+		
+	 	<!--[if lte IE 8]>
+<div class="browser-alert">
+    You&rsquo;re using an older web browser version that may make your computer unsafe. <a href="http://browsehappy.com/">Download the latest version</a> to keep your information safe and improve your experience.
+</div>
+<![endif]-->
+
+
+<div id="mainsection" class="gated-resource-data">
+        <div class="root responsivegrid">
+
+<div class="aem-Grid aem-Grid--12 aem-Grid--default--12 ">
+    
+    <div class="responsivegrid aem-GridColumn aem-GridColumn--default--12">
+
+<div class="aem-Grid aem-Grid--12 aem-Grid--default--12 ">
+    
+    <div class="keysight-header aem-GridColumn aem-GridColumn--default--12">
+
+		<div class="all__countries--wrapper" data-allcountries="{&#34;PR&#34;:&#34;Puerto Rico&#34;,&#34;HK&#34;:&#34;Hong Kong, China&#34;,&#34;PT&#34;:&#34;Portugal&#34;,&#34;HN&#34;:&#34;Honduras&#34;,&#34;PY&#34;:&#34;Paraguay&#34;,&#34;HR&#34;:&#34;Croatia&#34;,&#34;YE&#34;:&#34;Yemen&#34;,&#34;HU&#34;:&#34;Hungary&#34;,&#34;QA&#34;:&#34;Qatar&#34;,&#34;ID&#34;:&#34;Indonesia&#34;,&#34;IE&#34;:&#34;Ireland&#34;,&#34;IL&#34;:&#34;Israel&#34;,&#34;AE&#34;:&#34;United Arab Emirates&#34;,&#34;IN&#34;:&#34;India&#34;,&#34;ZA&#34;:&#34;South Africa&#34;,&#34;IQ&#34;:&#34;Iraq&#34;,&#34;IS&#34;:&#34;Iceland&#34;,&#34;AL&#34;:&#34;Albania&#34;,&#34;IT&#34;:&#34;Italy&#34;,&#34;AM&#34;:&#34;Armenia&#34;,&#34;AN&#34;:&#34;Netherlands Antilles&#34;,&#34;AO&#34;:&#34;Angola&#34;,&#34;AR&#34;:&#34;Argentina&#34;,&#34;AT&#34;:&#34;Austria&#34;,&#34;RE&#34;:&#34;Reunion&#34;,&#34;ZM&#34;:&#34;Zambia&#34;,&#34;AU&#34;:&#34;Australia&#34;,&#34;AW&#34;:&#34;Aruba&#34;,&#34;AZ&#34;:&#34;Azerbaijan&#34;,&#34;RO&#34;:&#34;Romania&#34;,&#34;ZW&#34;:&#34;Zimbabwe&#34;,&#34;BA&#34;:&#34;Bosnia and Herzegovina&#34;,&#34;ZZ&#34;:&#34;Worldwide&#34;,&#34;RS&#34;:&#34;Serbia&#34;,&#34;BD&#34;:&#34;Bangladesh&#34;,&#34;BE&#34;:&#34;Belgium&#34;,&#34;RU&#34;:&#34;Russia&#34;,&#34;BF&#34;:&#34;Burkina Faso&#34;,&#34;BG&#34;:&#34;Bulgaria&#34;,&#34;JO&#34;:&#34;Jordan&#34;,&#34;RW&#34;:&#34;Rwanda&#34;,&#34;BH&#34;:&#34;Bahrain&#34;,&#34;JP&#34;:&#34;Japan&#34;,&#34;BI&#34;:&#34;Burundi&#34;,&#34;BJ&#34;:&#34;Benin&#34;,&#34;BN&#34;:&#34;Brunei Darussalam&#34;,&#34;BO&#34;:&#34;Bolivia&#34;,&#34;SA&#34;:&#34;Saudi Arabia&#34;,&#34;BR&#34;:&#34;Brazil&#34;,&#34;SC&#34;:&#34;Seychelles&#34;,&#34;SE&#34;:&#34;Sweden&#34;,&#34;SG&#34;:&#34;Singapore&#34;,&#34;BW&#34;:&#34;Botswana&#34;,&#34;SI&#34;:&#34;Slovenia&#34;,&#34;BY&#34;:&#34;Belarus&#34;,&#34;BZ&#34;:&#34;Belize&#34;,&#34;SK&#34;:&#34;Slovakia&#34;,&#34;SL&#34;:&#34;Sierra Leone&#34;,&#34;KE&#34;:&#34;Kenya&#34;,&#34;SN&#34;:&#34;Senegal&#34;,&#34;KG&#34;:&#34;Kyrgyzstan&#34;,&#34;SO&#34;:&#34;Somalia&#34;,&#34;CA&#34;:&#34;Canada&#34;,&#34;CD&#34;:&#34;Congo, the Democratic Republic of the&#34;,&#34;CF&#34;:&#34;Central African Republic&#34;,&#34;SV&#34;:&#34;El Salvador&#34;,&#34;CG&#34;:&#34;Congo&#34;,&#34;CH&#34;:&#34;Switzerland&#34;,&#34;CI&#34;:&#34;Ivory Coast&#34;,&#34;KR&#34;:&#34;Korea&#34;,&#34;SZ&#34;:&#34;Swaziland&#34;,&#34;CL&#34;:&#34;Chile&#34;,&#34;CM&#34;:&#34;Cameroon&#34;,&#34;CN&#34;:&#34;China&#34;,&#34;CO&#34;:&#34;Colombia&#34;,&#34;KW&#34;:&#34;Kuwait&#34;,&#34;CR&#34;:&#34;Costa Rica&#34;,&#34;KZ&#34;:&#34;Kazakhstan&#34;,&#34;TD&#34;:&#34;Chad&#34;,&#34;TG&#34;:&#34;Togo&#34;,&#34;TH&#34;:&#34;Thailand&#34;,&#34;CY&#34;:&#34;Cyprus&#34;,&#34;LB&#34;:&#34;Lebanon&#34;,&#34;TJ&#34;:&#34;Tajikistan&#34;,&#34;CZ&#34;:&#34;Czech Republic&#34;,&#34;TM&#34;:&#34;Turkmenistan&#34;,&#34;TN&#34;:&#34;Tunisia&#34;,&#34;TR&#34;:&#34;Turkey&#34;,&#34;LK&#34;:&#34;Sri Lanka&#34;,&#34;DE&#34;:&#34;Germany&#34;,&#34;TW&#34;:&#34;Traditional Chinese&#34;,&#34;DJ&#34;:&#34;Djibouti&#34;,&#34;LR&#34;:&#34;Liberia&#34;,&#34;TZ&#34;:&#34;Tanzania, United Republic of&#34;,&#34;DK&#34;:&#34;Denmark&#34;,&#34;LS&#34;:&#34;Lesotho&#34;,&#34;LT&#34;:&#34;Lithuania&#34;,&#34;LU&#34;:&#34;Luxembourg&#34;,&#34;LV&#34;:&#34;Latvia&#34;,&#34;DO&#34;:&#34;Dominican Republic&#34;,&#34;UA&#34;:&#34;Ukraine&#34;,&#34;LY&#34;:&#34;Libya&#34;,&#34;UG&#34;:&#34;Uganda&#34;,&#34;MA&#34;:&#34;Morocco&#34;,&#34;DZ&#34;:&#34;Algeria&#34;,&#34;MD&#34;:&#34;Moldova, Republic of&#34;,&#34;ME&#34;:&#34;Montenegro&#34;,&#34;MG&#34;:&#34;Madagascar&#34;,&#34;EC&#34;:&#34;Ecuador&#34;,&#34;MK&#34;:&#34;Macedonia, The Former Yugoslav Republic of&#34;,&#34;US&#34;:&#34;United States&#34;,&#34;ML&#34;:&#34;Mali&#34;,&#34;EE&#34;:&#34;Estonia&#34;,&#34;EG&#34;:&#34;Egypt&#34;,&#34;UY&#34;:&#34;Uruguay&#34;,&#34;MR&#34;:&#34;Mauritania&#34;,&#34;UZ&#34;:&#34;Uzbekistan&#34;,&#34;MT&#34;:&#34;Malta&#34;,&#34;MU&#34;:&#34;Mauritius&#34;,&#34;MW&#34;:&#34;Malawi&#34;,&#34;MX&#34;:&#34;Mexico&#34;,&#34;MY&#34;:&#34;Malaysia&#34;,&#34;ER&#34;:&#34;Eritrea&#34;,&#34;MZ&#34;:&#34;Mozambique&#34;,&#34;ES&#34;:&#34;Spain&#34;,&#34;ET&#34;:&#34;Ethiopia&#34;,&#34;VE&#34;:&#34;Venezuela&#34;,&#34;NA&#34;:&#34;Namibia&#34;,&#34;NE&#34;:&#34;Niger&#34;,&#34;VN&#34;:&#34;Viet Nam&#34;,&#34;NG&#34;:&#34;Nigeria&#34;,&#34;NI&#34;:&#34;Nicaragua&#34;,&#34;NL&#34;:&#34;Netherlands&#34;,&#34;NO&#34;:&#34;Norway&#34;,&#34;FI&#34;:&#34;Finland&#34;,&#34;FR&#34;:&#34;France&#34;,&#34;NZ&#34;:&#34;New Zealand&#34;,&#34;GA&#34;:&#34;Gabon&#34;,&#34;GB&#34;:&#34;United Kingdom&#34;,&#34;GE&#34;:&#34;Georgia&#34;,&#34;OM&#34;:&#34;Oman&#34;,&#34;GH&#34;:&#34;Ghana&#34;,&#34;GM&#34;:&#34;Gambia&#34;,&#34;GN&#34;:&#34;Guinea&#34;,&#34;GQ&#34;:&#34;Equatorial Guinea&#34;,&#34;GR&#34;:&#34;Greece&#34;,&#34;GT&#34;:&#34;Guatemala&#34;,&#34;GW&#34;:&#34;Guinea-Bissau&#34;,&#34;PA&#34;:&#34;Panama&#34;,&#34;PE&#34;:&#34;Peru&#34;,&#34;PH&#34;:&#34;Philippines&#34;,&#34;PK&#34;:&#34;Pakistan&#34;,&#34;PL&#34;:&#34;Poland&#34;}">
+    	</div>	
+		
+
+<div id="header" class="dark">
+    <div id="header-cookie-msg">
+      <div class="wrapper">사이트 기능 및 성능 향상을 위해 브라우저 쿠키를 활성화하십시오.</div>
+    </div>
+    <noscript>
+      <div id="header-noscript">
+        <div class="wrapper">Enable Javascript and browser cookies for improved site capabilities and performance.</div>
+		</div>
+    </noscript>
+    <div id="header-global-message">
+      <div class="wrapper"></div>
+    </div>
+    <div id="header-lucky-search">
+      <div class="wrapper">Here's the page we think you wanted.
+      <a href="https://www.keysight.com/main/facet.jspx?k=" class="dtmData" data-name="Header" data-location="Header" data-trigger="false">See search results instead:</a></div>
+    </div>
+	 <div id="header-search">
+      <div class="wrapper">
+        <form name="site-search" action="/main/facet.jspx" data-search-endpoint="https://www.keysight.com/main/lookaheadsearch.jspx?">
+          <input name="k" id="header-search-input" autocomplete="off" maxlength="255"/>
+          <button id="header-search-submit">검색</button>
+          <input type="hidden" name="cc" value="KR"/>
+          <input type="hidden" name="lc" value="kor"/>
+          <input type="hidden" name="pSearch" value="tnmSearch"/>
+          <input type="hidden" name="hasLuckySearch" value="true"/>
+          <div class="search-dropdown"></div>
+        </form>
+      </div>
+    </div>
+    <div class="wrapper">
+      <div id="logo">
+		
+		
+        
+        <a href="/kr/ko/home.html" title="Keysight" data-name="Header" data-value="Keysight Logo" data-location="Header" data-trigger="false" class="dtmData">
+			  <img src="/content/dam/keysight/en/img/gnav/keysight-logo-darktheme.svg" alt="Keysight Technologies"/>
+			</a>
+		
+      </div>
+       
+    </div>
+    <div class="wrapper hamburger">
+      <div id="hamburger">
+        <span>Toggle Menu</span>
+      </div>
+    </div>
+    <div id="util-gnav">
+      <div class="wrapper">
+        <div id="toputil">
+          <div id="util-contacts">
+			<div class="util-contact" id="aem_nav_wc" style="visibility: hidden;">
+              <div id="aem_nav_wcLink">
+                <div id="aem_nav_wcLinkInfo">실기간 채팅</div>
+              </div>
+            </div>
+			
+				<div class="util-contact">
+				  <a href="/kr/ko/contact.html" data-name="Header" data-location="Header" data-trigger="false" data-value="키사이트에 연락" class="dtmData">
+					<span>키사이트에 연락</span>
+				  </a>
+				   
+				</div>
+			
+          </div> <!-- #util-contacts -->
+          <div id="util-icons">
+          
+            
+            <div class="util-icon">
+              <a href="https://www.keysight.com/kr/ko/more-countries.html?prev_url=https%3A%2F%2Fwww.keysight.com%2Fkr%2Fko%2Fassets%2F9018-01113%2Fuser-manuals%2F9018-01113.pdf" id="util-locale" data-name="Header" data-location="Header" data-value="Locale Icon" data-trigger="false" class="dtmData">
+                <img src="/etc/designs/keysight/clienlibs/head/img/eclipse/icon-globe-white.svg" alt="한국" title="한국"/>
+              </a>
+              <div id="locale-chooser">
+                <div>
+                  <p class="locale-chooser-text">
+                    <strong>국가 또는 지역 확인</strong>
+                  </p>
+                  <p class="locale-default">
+                    <a id="locale-default" href="https://www.keysight.com/kr/ko/assets/9018-01113/user-manuals/9018-01113.pdf" title="한국" data-cclc="KRkor" style="display:none;" data-name="Header" data-location="Header" data-trigger="false" class="dtmData">
+                      <strong>한국</strong>
+                    </a>
+					<strong class="locale-current-country"></strong>
+                  </p>
+                  <ul>
+                <li><a href="https://www.keysight.com/cn/zh/assets/9018-01113/user-manuals" title="China" data-cclc="CNchi" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="中国">中国</a></li>
+                <li><a href="https://www.keysight.com/jp/ja/assets/9018-01113/user-manuals" title="Japan" data-cclc="JPjpn" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="日本">日本</a></li>
+                <li><a href="https://www.keysight.com/tw/zh/assets/9018-01113/user-manuals" title="Traditional Chinese" data-cclc="TWcht" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="繁體中文">繁體中文</a></li>
+                <li style="display:none;"><a href="https://www.keysight.com/kr/ko/assets/9018-01113/user-manuals" title="Korea" data-cclc="KRkor" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="한국">한국</a></li>
+                <li><a href="https://www.keysight.com/ru/ru/assets/9018-01113/user-manuals" title="Russia" data-cclc="RUrus" data-name="Header" data-location="Header" data-trigger="false" data-value="Россия" class="dtmData">Россия</a></li>
+                <li><a href="https://www.keysight.com/br/pt/assets/9018-01113/user-manuals" title="Brazil" data-cclc="BRpor" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Brasil">Brasil</a></li>
+                <li><a href="https://www.keysight.com/ca/en/assets/9018-01113/user-manuals" title="Canada" data-cclc="CAeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Canada">Canada</a></li>                
+                <li><a href="https://www.keysight.com/de/de/assets/9018-01113/user-manuals" title="Germany" data-cclc="DEger" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Deutschland">Deutschland</a></li>
+                <li><a href="https://www.keysight.com/fr/en/assets/9018-01113/user-manuals" title="France" data-cclc="FRfre" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="France">France</a></li>
+                <li><a href="https://www.keysight.com/in/en/assets/9018-01113/user-manuals" title="India" data-cclc="INeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="India">India</a></li>
+                <li><a href="https://www.keysight.com/my/en/assets/9018-01113/user-manuals" title="Malaysia" data-cclc="MYeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Malaysia">Malaysia</a></li>
+                <li><a href="https://www.keysight.com/gb/en/assets/9018-01113/user-manuals" title="United Kingdom" data-cclc="GBeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="United Kingdom">United Kingdom</a></li>
+                <li><a href="https://www.keysight.com/us/en/assets/9018-01113/user-manuals" title="United States" data-cclc="USeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="United States">United States</a></li>
+               
+
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/au/en/assets/9018-01113/user-manuals" title="Australia" data-cclc="AUeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Australia">Australia</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/at/de/assets/9018-01113/user-manuals" title="Austria" data-cclc="ATger" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Austria">Austria</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/be/en/assets/9018-01113/user-manuals" title="Belgium" data-cclc="BEdut" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Belgium">Belgium</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/dk/en/assets/9018-01113/user-manuals" title="Denmark" data-cclc="DKdan" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Denmark">Denmark</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/fi/en/assets/9018-01113/user-manuals" title="Finland" data-cclc="FIfin" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Finland">Finland</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/hk/en/assets/9018-01113/user-manuals" title="Hong Kong, China" data-cclc="HKeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Hong Kong, China">Hong Kong, China</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/ie/en/assets/9018-01113/user-manuals" title="Ireland" data-cclc="IEeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Ireland">Ireland</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/il/en/assets/9018-01113/user-manuals" title="Israel" data-cclc="ILeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Israel">Israel</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/it/en/assets/9018-01113/user-manuals" title="Italy" data-cclc="ITita" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Italy">Italy</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/mx/en/assets/9018-01113/user-manuals?" title="Mexico" data-cclc="MXspa" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Mexico">Mexico</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/nl/en/assets/9018-01113/user-manuals?" title="Netherlands" data-cclc="NLdut" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Netherlands">Netherlands</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/sg/en/assets/9018-01113/user-manuals" title="Singapore" data-cclc="SGeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Singapore">Singapore</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/es/en/assets/9018-01113/user-manuals" title="Spain" data-cclc="ESspa" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Spain">Spain</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/se/en/assets/9018-01113/user-manuals" title="Sweden" data-cclc="SEswe" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Sweden">Sweden</a></li>                
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/ch/de/assets/9018-01113/user-manuals" title="Switzerland (German)" data-cclc="CHger" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Switzerland (German)">Switzerland (German)</a></li>
+                <li style="display:none;"><a data-hide-option="true" href="https://www.keysight.com/th/en/assets/9018-01113/user-manuals" title="Thailand" data-cclc="THeng" class="clear-storage dtmData" data-name="Header" data-location="Header" data-trigger="false" data-value="Thailand">Thailand</a></li>
+
+                <li><a href="https://www.keysight.com/kr/ko/more-countries.html?prev_url=https%3A%2F%2Fwww.keysight.com%2Fkr%2Fko%2Fassets%2F9018-01113%2Fuser-manuals%2F9018-01113.pdf" id="language-selector-more-link" data-name="Header" data-location="Header" data-trigger="false" data-value="더 자세히" class="dtmData">더 자세히</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div id="locale-confirm">
+                <div>
+                  <p>
+                    <strong>확인해 주십시오.</strong>
+                  </p>
+                  <p>관련 가격, 특별 행사, 이벤트 및 연락처 정보를 보시려면 국가를 선택하여 주십시오.</p>
+                  <form>
+                    <select></select>
+                    <button>선택</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="util-icon"data-sly-test="false" >
+              <a href="#" id="util-search">
+                  <img src="/etc/designs/keysight/clienlibs/head/img/eclipse/icon-search-white.svg" alt="Search" title="Search">
+                  <img src="/etc/designs/keysight/clienlibs/head/img/eclipse/icon-search-close-white.svg">
+                </a>
+            </div> -->
+            
+          </div> <!-- #util-icons -->
+        </div> <!-- #toputil -->
+      </div>
+       <!-- #gnavbar  -->
+    </div> <!-- #util-gnav -->	
+    <div id="keysight-lookahead-search">
+      <div>
+<div></div>
+
+    
+<script type="text/javascript" src="/etc.clientlibs/keysight/components/content/search-lookahead/clientlibs.min.82ee6b8edb43c3e63ccfbdf654eded18.js"></script>
+
+
+
+<div class="wrapper .btn-resized">
+    <div name="keysight-search" class="lookahead-search-form" data-basePath="/kr/ko" data-language-code="ko" data-country-code="kr" data-frontend-query="https://www.keysight.com/clientapi/search" data-comp="Search Lookahead" data-name="Search Lookahead" data-basePath-resource="/kr/ko">
+        <form id="lookahead-search-form" action="/etc/keysight/elastic/product/search" method="GET">
+            <input name="modelId" id="Lookahead-search-input" autocomplete="off" maxlength="255"/>
+            <button id="Lookahead-search-submit" type="submit">
+                <img src="/etc/designs/keysight/clienlibs/head/img/eclipse/icon-search-white.svg"/>
+            </button>
+            <input type="hidden" name="currentPagePath" value="/content/keysight/kr/ko/other/gate-page-postsales"/>
+
+            <input type="hidden" name="currentPageName" value="gate-page-postsales"/>
+			
+				<input type="hidden" name="redirectTo" value="product"/>
+
+            <input type="hidden" name="basePath" value="/kr/ko"/>
+			<input type="hidden" name="langCd" value="ko"/>
+			<input type="hidden" name="cntryCd" value="kr"/>
+        </form>
+        <div class="search-results-block">
+            <!-- <div id="lookaheadErrorMsg">
+                <div class="keysight-resource__rightContent--title">
+                    No product matches found
+                </div>
+            </div> -->
+            <div id="ExceptionError">
+                <div class="keysight-resource__rightContent--title">
+                    No product matches found - System Exception
+                </div>
+            </div>
+            <script id="search-results-template" type="text/x-handlebars-template">
+            <div class="search-result">
+                <div class="keysight-resource__rightContent--contentTitle">{{title}}</div>
+                <div class="keysight-resource__rightContent--title"><a class="dtmData" href={{productpath}} data-parentValue="Search">{{productTitle}}
+                    {{#if itemStatus}}
+                    <span>[</span><span>{{itemStatus}}</span><span>]</span>
+                    {{/if}}
+                </a></div>
+                <ul class="products-List">
+                    {{#if preVersionLink}}
+                        <li><a class="dtmData" href="{{preVersionLink}}" data-parentValue="Search">
+                            이전 버전
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if productpath}}
+                        <li><a class="dtmData" href="{{productpath}}" data-parentValue="Search">
+                            제품 정보
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if howtobuy}}
+                    <li><a class="dtmData" href={{howtobuy}} data-parentValue="Search">
+                        구입 방법</a>
+                    </li>
+                    {{/if}}
+
+                    {{#if optionAndUpgrade}}
+                    <li><a class="dtmData" href={{optionAndUpgrade}} data-parentValue="Search">
+                        옵션 및 업그레이드</a>
+                    </li> 
+                    {{/if}} 
+                    
+                    {{#if techsupportLink}}
+                    <li><a class="dtmData" href={{techsupportLink}} data-parentValue="Search">
+                        기술 지원</a>
+                    </li>
+                    {{/if}}
+                </ul>
+            </div>
+        </script>
+
+        </div>
+        <button class="search-btn">검색</button>
+    </div>
+</div>
+<div class="search-close-icon"></div></div>
+  </div>
+</div></div>
+<div class="responsivegrid aem-GridColumn aem-GridColumn--default--12">
+
+<div class="aem-Grid aem-Grid--12 aem-Grid--default--12 ">
+    
+    <div class="keysight-layout-container aem-GridColumn aem-GridColumn--default--12">
+ 
+
+ 
+
+
+
+	<div class="panel   ">
+		<div class="wrapper">
+			 
+			
+
+
+<div class="wrapper  gated">
+	
+	
+	
+	
+    
+    
+	
+    
+		<div class="layout-multicolumn three-columns right-wide">
+		<div class="eqCol">
+			<div class="gate-page-data section">
+
+
+<input type="hidden" data-is-gated="true" data-is-lead-gen="true"/>
+
+	
+	
+	
+		<div class="sidebar">
+			<div>
+				<noscript>
+					<img src="https://keysight-h.assetsadobe.com/is/image/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/_jcr_content/renditions/cq5dam.Standard%20Image.1280.1280.jpeg" alt="654xA/655xA/657xA Operating Manual"/>
+				</noscript>
+				<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEAAAEALAAAAAABAAEAAAICTAEAOw==" data-src="https://keysight-h.assetsadobe.com/is/image/content/dam/keysight/en/doc/gate/user-manuals/9018-01113.pdf/jcr:content/renditions/cq5dam.Standard Image.1280.1280.jpeg" alt="654xA/655xA/657xA Operating Manual"/>
+			</div>
+			
+			
+				<div class="d-flexwrap">
+					<span class="d-padright-02">
+						<b>Publication Number: </b>
+					</span>
+					<span>5959-3374</span>
+				</div>
+			
+			
+				<div>
+					<b>Publication Date: </b>2004.06.30           
+				</div>
+			
+			
+				<div>
+					<b>Language: </b>English          
+				</div>
+			
+			
+		</div>
+	
+	
+	
+	
+
+
+
+</div>
+
+
+		</div>
+		<div class="eqCol">
+			<div class="gate-page-data section">
+
+
+<input type="hidden" data-is-gated="true" data-is-lead-gen="true"/>
+
+	
+	
+	
+	
+		<div class="content sidebar">
+			
+				<div class="res-type">User Manuals</div>
+			
+			<h1 class="res-title">654xA/655xA/657xA Operating Manual</h1>
+			
+		</div>
+	
+	
+	
+
+
+
+</div>
+<div class="gate-page-data section">
+
+
+<input type="hidden" data-is-gated="true" data-is-lead-gen="true"/>
+
+	
+	
+	
+	
+	
+		<div class="content sidebar">
+			<div class="show-description-label" id="toggleDesc">Show Description
+				<span class="close-plus"></span>
+			</div>
+			<div class="rte" id="descContainer">
+				<p>Part number 5959-3376. Operating guide for models 6541A, 6542A, 6543A, 6544A, 6545A, 6551A, 6552A, 6553A, 6554A, 6555A, 6641A, 6642A, 6643A, 6644A, 6645A, 6651A, 6652A, 6653A, 6654A, 6655A.</p>
+			</div>
+		</div>
+	
+	
+
+
+
+</div>
+
+
+		</div>
+		<div class="eqCol">
+			<div class="eloqua-landing-page-form elq-bg-very-light-gray section">
+
+
+
+
+
+<div id="eloqua-hidden-fields" style="display:none" data-mid="12288554076695712482969598109318904869" data-pub-title="654xA/655xA/657xA Operating Manual" data-ref-page="9018-01113.pdf?success=true" data-document_URL="https://www.keysight.com/kr/ko/assets/9018-01113/user-manuals/9018-01113.pdf" data-unlock="false"></div>
+
+
+	
+		
+			<!DOCTYPE html>
+
+
+     
+  
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+  
+    <script>
+        //Common Utility Functions
+        var _eUF = {
+            getParameterByName:function (variable){ var query=window.location.search.substring(1); var vars=query.split("&"); for (var i=0; i < vars.length; i++){ var pair=vars[i].split("="); if (pair[0]==variable){ return pair[1];}} return (false);},
+            createCookie:function (cookieName, cookieVal, exdays){ var d=new Date(); d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000)); var expires='expires=' + d.toUTCString(); document.cookie=cookieName + '=' + cookieVal + ';' + expires + ';domain=.keysight.com;path=/';},
+            getCookieVal:function (cname){ var name=cname + "="; var decodedCookie=document.cookie; var ca=decodedCookie.split(';'); for (var i=0; i < ca.length; i++){ var c=ca[i]; while (c.charAt(0)==' '){ c=c.substring(1);} if (c.indexOf(name)==0){ return c.substring(name.length, c.length);}} return "";},
+            getCleanUrl:function (){ return [location.protocol, '//', location.host, location.pathname].join('');}
+        }
+        var _eFURL = window.location.href; //FULL URL
+      var _edbg = true; 
+      if ((_eFURL.indexOf('?' + 'elqdbg=true') !== -1) || (_eFURL.indexOf('&' + 'elqdbg=true') !== -1)) { _edbg = true;}
+      if ((_eFURL.indexOf('?' + 'elqdbg=false') !== -1) || (_eFURL.indexOf('&' + 'elqdbg=false') !== -1)) { _edbg = false;}
+        
+        
+        </script>
+        
+  	<style>
+    	.eloqua-spinner-2 {background:url(/etc/designs/keysight/clienlibs/head/img/eclipse/loader.gif) no-repeat 50% 50%;height:60px}   
+  	</style>
+    <script>
+      var EloquaSiteID = "609785623"; 								// The Site ID of your Eloqua Instance
+      var EloquaScript = "https://img03.en25.com/i/elqCfg.min.js"; 	// Path to elqCfg.min.js
+      var LookupIdVisitor = "2c87fa21899d42ee804c59d83b50ba46";		// The ID of your Visitor Web Data Lookup
+      var LookupIdContact = "ed32e8f44a0243729dc84cb6099150df";		// The ID of your Contact/Datacard/Prospect/Company Web Data Lookup
+      var VisitorUniqueField = "V_ElqEmailAddress";					// Unique field's HTML Name from Visitor Lookup (usually V_Email_Address)
+      var ContactUniqueField = "C_EmailAddress";						// Unique field's HTML Name from Contact Lookup (usually C_EmailAddress)
+      var FirstPartyCookieDomain = "elq.keysight.com";                // Domain where your first-party Eloqua cookie resides
+      
+      var EloquaFormPostURL = "https://connectlp.keysight.com/e/f2"; 
+      var EloquaFormPostURL2 = "https://"+"s609"+"785623.t.elo"+"qua.com/e/f2";
+      var EloquaFormName = "frmKGSOPostSalesGatedDocument";
+
+      var bFoundTPC = false;
+      
+      //Commented for WLM Prod
+      //Override for staging/sandbox (remove for production)
+      //EloquaSiteID = "1944119752";
+      //EloquaFormPostURL = "https://s194"+"4119752.t.elo"+"qua.com/e/f2";
+      //EloquaFormPostURL2 = "https://s194"+"4119752.t.elo"+"qua.com/e/f2";
+  
+      // ELOQUA ASYNC TRACKING CODE, INCLUDING OPT-IN -- USES VARIABLES FOR UNIQUE IDs -- DO NOT CHANGE //
+      var _elqQ = _elqQ || [];
+      _elqQ.push(['elqSetSiteId', EloquaSiteID]);
+      //_elqQ.push(['elqUseFirstPartyCookie', FirstPartyCookieDomain]);
+      _elqQ.push(['elqTrackPageView']);
+      
+      (function ()
+       {
+        function async_load()
+        {
+          var s = document.createElement('script');
+          s.type = 'text/javascript';
+          s.async = true;
+          s.src = EloquaScript;
+          var x = document.getElementsByTagName('script')[0];
+          x.parentNode.insertBefore(s, x);
+        }
+        if (window.addEventListener){
+          window.addEventListener('DOMContentLoaded', async_load, false);
+        }else if (window.attachEvent){
+          window.attachEvent('onload', async_load);
+        }
+      })();
+      
+      //_elqQ.push(['elqDataLookup', escape(LookupIdVisitor),'']);
+  
+      /* Page Logical Definition start */ 
+      // var displayfield = 5;
+      var lookup;
+      var optinLookupField;
+      var field_incomplete = '';
+      var fields_arr = [];
+      var fields_lookup = ['C_EmailAddress', 'C_FirstName', 'C_LastName', 'C_Country', 'C_Privacy_Agreement_Opt_In1'];
+      var fields_form = ['epp0', 'epp1', 'epp2', 'epp4', 'epp12'];
+      var fields_id_form = ['field00', 'field01', 'field02', 'field04', 'field12'];
+  
+      var profileEmailElq = "";
+      var elqState = "";
+      var formState = "";
+      var elqtimeoutHandle;
+      var timerMs = 3000;
+      var autoFormSubmit = true; 
+      var isCheckKcomCookies = true; 
+      
+      
+      if ((_eFURL.indexOf('?' + 'afs=true') !== -1) || (_eFURL.indexOf('&' + 'afs=true') !== -1)) { autoFormSubmit = true;}
+      if ((_eFURL.indexOf('?' + 'afs=false') !== -1) || (_eFURL.indexOf('&' + 'afs=false') !== -1)) { autoFormSubmit = false;}
+      /* Page Logical Definition end */
+      
+      function SetElqContent()
+      {
+        _edbg && console.log("FUNC CALLED : SetElqContent()");
+
+        _edbg && console.log("formState: " + formState + "; SetElqContent Called -> this.GetElqContentPersonalizationValue:" + this.GetElqContentPersonalizationValue);
+        _edbg && console.log("GetElqContentPersonalizationValue(VisitorUniqueField)" + GetElqContentPersonalizationValue(VisitorUniqueField));
+              
+        if ( (formState == '' ||formState == 'S00')  && this.GetElqContentPersonalizationValue && GetElqContentPersonalizationValue(VisitorUniqueField) != "" ) {
+          _edbg && console.log("formState = '' or 'S00'   && visitor found");  
+          setElqDataLookup('CheckContactByElqEmail');
+        }
+  
+        if ( this.GetElqContentPersonalizationValue && GetElqContentPersonalizationValue(ContactUniqueField) != "" ) {
+          _edbg && console.log("default : contact email found ");
+          loadElqContactData();
+        }
+  
+        /*if ( formState == 'S10'  && this.GetElqContentPersonalizationValue && GetElqContentPersonalizationValue(ContactUniqueField) != "" ) {
+          _edbg && console.log("formState == 'S10' && contact email found "); loadElqContactData();
+        }
+        if ( formState == 'S20' && this.GetElqContentPersonalizationValue && GetElqContentPersonalizationValue(ContactUniqueField) != "" ) {
+          _edbg && console.log("formState == 'S20' && contact email found "); loadElqContactData();
+        }*/
+  
+      }
+      
+      function setElqDataLookup(pLookupState) {
+        _edbg && console.log("FUNC CALLED : setElqDataLookup(pLookupState)");
+        
+        if (pLookupState == 'CheckVisitor') {
+            _edbg && console.log("pLookupState:"+pLookupState);
+          	// first call on window load
+  
+            _elqQ.push(['elqUseFirstPartyCookie', FirstPartyCookieDomain]);
+            _edbg && console.log("elqDataLookup escape(LookupIdVisitor) : " + escape(LookupIdVisitor) );
+            _elqQ.push(['elqDataLookup', escape(LookupIdVisitor),'']);
+            
+            formState = 'S00';
+            resetFormDisplay();
+            elqtimeoutHandle = setTimeout('checkKcomCookies()', timerMs);
+        }
+        else if (pLookupState == 'CheckContactByElqEmail') {
+            _edbg && console.log("pLookupState:"+pLookupState);
+          
+            // Look for contact by ELQ received visitor email
+            _edbg && console.log("elqDataLookup escape(LookupIdVisitor) : " + escape(LookupIdVisitor) + ' , <' + ContactUniqueField + '>' + GetElqContentPersonalizationValue(VisitorUniqueField) + '</' + ContactUniqueField + '>' );
+            _elqQ.push(['elqDataLookup', 
+                escape(LookupIdContact), 
+                '<' + ContactUniqueField + '>' + GetElqContentPersonalizationValue(VisitorUniqueField) + '</' + ContactUniqueField + '>'
+                ]);
+            
+            formState = 'S10';
+            window.clearTimeout(elqtimeoutHandle);
+            resetFormDisplay();
+            elqtimeoutHandle = setTimeout('setFormDisplay()', timerMs);
+        }
+        else if (pLookupState == 'CheckContactByEmailEntered') {
+            _edbg && console.log("pLookupState:"+pLookupState);
+
+          // Show email editable & continue without Change Email
+            var visitorEmail = $("#field00").val();
+            if (validateEmail(visitorEmail) ) {
+              _edbg && console.log("elqDataLookup escape(LookupIdVisitor) : " + escape(LookupIdVisitor) + ' , <' + ContactUniqueField + '>' + visitorEmail + '</' + ContactUniqueField + '>' );
+              _elqQ.push(['elqDataLookup', 
+                            escape(LookupIdContact), 
+                            '<' + ContactUniqueField + '>' + visitorEmail + '</' + ContactUniqueField + '>'
+                ]);
+              formState = 'S20';
+              window.clearTimeout(elqtimeoutHandle);
+              resetFormDisplay();
+              elqtimeoutHandle = setTimeout('setFormDisplay()', timerMs);
+            } else {
+              //resetFormDisplay()
+              //setFormDisplay();
+            }
+        }
+      }
+  
+      function checkKcomCookies() {
+        _edbg && console.log("FUNC CALLED : checkKcomCookies()");
+        // Put Remember Me Cookie & Call API
+        // If Remember Me Cookie not found, call MyKeysight Login
+        
+        IsFormLoadedFromCookie = false;
+        
+        var strFirstName = "";
+        var strLastName = "";
+        var strEmailAddress = "";
+        var strCountry = "";
+        if (_eUF.getCookieVal('AK_COUNTRY').length) {
+          strCountry = _eUF.getCookieVal('AK_COUNTRY');
+        }
+
+        if (_eUF.getCookieVal('AGREMMEADV').length && IsFormLoadedFromCookie == false && isCheckKcomCookies) {
+          console.log("Cookie AGREMMEADV found : " + _eUF.getCookieVal('AGREMMEADV'));
+
+          //window.clearTimeout(elqtimeoutHandle);
+
+          var host = window.location.host;
+          var strRememberMeAPIEndpoint = "https://www.keysight.com/etc/keysight/api/UpdateFormCookie"; 
+          strRememberMeAPIEndpoint = (host.includes("stgwww.keysight.com") ? strRememberMeAPIEndpoint.replace("www.keysight.com","stgwww.keysight.com") : strRememberMeAPIEndpoint );
+
+          var strRememberMeCookieName = _eUF.getCookieVal('AGREMMEADV');
+          strRememberMeAPIEndpoint += "?cookieValue="+strRememberMeCookieName;
+          
+          $.ajax({
+            type: "GET",
+            async: false,
+            url: strRememberMeAPIEndpoint,
+            success: function(response) { 
+              console.log("SUCCESS : \n" + response.FirstGivenName + "|" + response.LastName + "|" + response.EmailAddress + " | " + strCountry );
+
+              if (response.FirstGivenName) strFirstName = response.FirstGivenName.trim();
+              if (response.LastName) strLastName = response.LastName.trim();
+              if (response.EmailAddress) strEmailAddress = response.EmailAddress.trim();
+
+              window.clearTimeout(elqtimeoutHandle);
+              resetFormDisplay();
+              if (strFirstName.length > 0 || strLastName.length > 0 || strEmailAddress.length > 0) {
+
+                $('input[name="firstName"]').val(strFirstName);
+                $('input[name="lastName"]').val(strLastName);
+                $('input[name="emailAddress"]').val(strEmailAddress);
+                $('select[name="country"]').val(strCountry);
+
+                if ( ! checkAutoSubmit("AS-REMMECOOKIE") ) {
+                  formState = 'S20';
+                  setFormDisplay();				                
+                } else {
+                  IsFormLoadedFromCookie = true;
+                }
+              }
+              else {
+                console.log("RememberMeAPI returned empty");
+              }
+            },
+            error: function(error) {
+              console.log("RememberMeAPI Error :" + error);
+            }
+          });
+          //To Do : Auto submit form when form is loaded
+        } 
+        
+        if (_eUF.getCookieVal('AGRL').length && IsFormLoadedFromCookie == false && isCheckKcomCookies) {
+          console.log("Cookie AGRL found : " + _eUF.getCookieVal('AGRL'));
+
+          //window.clearTimeout(elqtimeoutHandle);
+
+          var host = window.location.host;
+          var strMyKUserAPIEndpoint = "https://www.keysight.com/etc/keysight/api/user-profile.json"; 
+          strMyKUserAPIEndpoint = (host.includes("stgwww.keysight.com") ? strMyKUserAPIEndpoint.replace("www.keysight.com","stgwww.keysight.com") : strMyKUserAPIEndpoint );
+
+          $.ajax({
+            type: "GET",
+            async: false,
+            url: strMyKUserAPIEndpoint,
+            success: function(response) { 
+              console.log("SUCCESS : \n" + response.first_name + " | " + response.last_name + " | " + response.email + " | " + strCountry );
+              
+              if (response.first_name) strFirstName = response.first_name.trim();
+              if (response.last_name) strLastName = response.last_name.trim();
+              if (response.email) strEmailAddress = response.email.trim();
+
+              window.clearTimeout(elqtimeoutHandle);
+              resetFormDisplay();
+              if (strFirstName.length > 0 || strLastName.length > 0 || strEmailAddress.length > 0) {
+
+                $('input[name="firstName"]').val(strFirstName);
+                $('input[name="lastName"]').val(strLastName);
+                $('input[name="emailAddress"]').val(strEmailAddress);
+                $('select[name="country"]').val(strCountry);
+                
+                if ( ! checkAutoSubmit("AS-MYKCOOKIE") ) {
+                  	formState = 'S20';
+                  	setFormDisplay();				                
+                } else {
+                	IsFormLoadedFromCookie = true;
+                }
+              }
+              else {
+                console.log("MyKUserAPI returned empty");
+              }
+            },
+            error: function(error) {
+              console.log("MyKUserAPI Error :" + error);
+            }
+          });
+          //To Do : Auto submit form when form is loaded
+        } 
+        
+        if ( IsFormLoadedFromCookie == false) {
+          formState = 'S00';
+          setFormDisplay();
+        } 
+
+      }
+  
+  
+      function setFormDisplay()
+      {
+        _edbg && console.log("FUNC CALLED : setFormDisplay()");
+        _edbg && console.log("Entered setFormDisplay formState = " + formState);  
+                
+        if (formState == '' || formState == 'S00' ) {
+            // Show email editable & continue without Change Email link
+            showVisitorEmail();
+        }
+        else if (formState == 'S10' || formState == 'S20') {
+            // Show email read only, form fields & Submit button with Change Email link
+            showContactFields();
+        }
+        
+        // To do : optimize
+        $("#body_lookup").show();
+      }
+  
+      function clearFormData() {
+        _edbg && console.log("FUNC CALLED : clearFormData()");
+        
+        var visitorEmail = $("#field00").val(); 
+        $("#frmELQ")[0].reset();
+        $("#field00").val(visitorEmail);
+      }
+  
+      function resetFormDisplay() {
+        _edbg && console.log("FUNC CALLED : resetFormDisplay()");
+  
+        // Reset Form Display State
+        $("#body_lookup").hide();
+        
+        $(".eloqua-spinner").addClass("eloqua-spinner-2");
+        
+        $("#elq-visitor-email").hide();     
+        $("#main_body").hide();
+  
+        $("#outer_spn").hide();
+        $("#field00").attr("readonly",false);
+        $('.error-text').hide();
+        
+        //$("#epp1").show();
+        //$("#epp2").show();
+        //$("#epp4").show();
+        $("div.field-row").show();
+        
+        //$("#epp12").show();
+        //$('#field12').prop("checked", false);
+        
+        $("#btnContinue").hide();
+        
+        //$("#btnSubmitContact").hide().prop('disabled', true);
+        $("#Submit_contact").hide().prop('disabled', true);
+        
+        clearFormData();
+      }
+  
+      function loadElqContactData() {
+        _edbg && console.log("FUNC CALLED : loadElqContactData()");
+        // To Do : Hide EPP Divs for value received 
+  
+        lookup = true ; //To Do: Check at other locations 
+        if ( lookup ) {
+          if (GetElqContentPersonalizationValue("C_EmailAddress").length > 0 ) {
+            $("#field00").val(GetElqContentPersonalizationValue("C_EmailAddress"));
+            profileEmailElq = GetElqContentPersonalizationValue("C_EmailAddress");
+          }
+          if (GetElqContentPersonalizationValue("C_FirstName").length > 0 ) {
+            $("#field01").val(GetElqContentPersonalizationValue("C_FirstName")).closest(".field-row").hide();
+          }
+          if (GetElqContentPersonalizationValue("C_LastName").length > 0 ) {
+            $("#field02").val(GetElqContentPersonalizationValue("C_LastName")).closest(".field-row").hide();
+          }
+          if (GetElqContentPersonalizationValue("C_Country").length > 0 ) {
+            // code updated: country code not mapped with drop down 
+            //$("#field04").val(GetElqContentPersonalizationValue("C_Country")).closest(".field-row").hide();
+
+            $("#field04").closest(".field-row").hide();
+            $("#field04").val(GetElqContentPersonalizationValue("C_Country")); //set value received from Eloqua 
+            //Check if country dropdown value is selected 
+            if ( !$( "#field04 option:selected" ).val() ) {
+              //set value based on dropdown display text  received from Eloqua 
+              $("#field04 option").filter(function() {  return ($(this).text() == GetElqContentPersonalizationValue("C_Country")); }).prop('selected', true);
+              
+              //Check if country dropdown value is selected based on display text
+              if ( !$( "#field04 option:selected" ).val() ) {
+                $("#field04").closest(".field-row").show(); //show row for user to input
+              }
+            } 
+          }      
+          if ((GetElqContentPersonalizationValue("C_Email_Optin1") === "True" || GetElqContentPersonalizationValue("C_Email_Optin1") === "Yes") && 
+              (GetElqContentPersonalizationValue("C_Privacy_Agreement_Opt_In1") === "True" || GetElqContentPersonalizationValue("C_Privacy_Agreement_Opt_In1") === "Yes")) {
+                $("#field12").prop("checked", true).closest(".field-row").hide();
+          }
+  
+          //checkAutoSubmit("AS-ELQLOAD");
+
+          if ( ! checkAutoSubmit("AS-ELQLOAD") ) {
+            //Do nothing
+          }
+
+          lookup = false;
+        }
+      }
+      
+      function checkAutoSubmit(formDataSource) {
+        if ($("#field00").val().length > 0 && $("#field01").val().length > 0 && $("#field02").val().length > 0 && $("#field04").val().length > 0 ) {
+          _edbg && console.log("Auto submit condition met and autoFormSubmit is " + autoFormSubmit);
+
+          if (autoFormSubmit) {
+            //To Do : Auto submit form when form is loaded
+            //$('#frmELQ')[0].submit();
+            
+            window.clearTimeout(elqtimeoutHandle);
+            $("#hidfield33").val($("#hidfield33").val()+"DataSource:"+formDataSource);
+            $("#Submit_contact").prop('disabled', false).trigger('click');
+            
+            // call spinner
+            checkGatedCookieUpdated(0);
+            
+            return true;
+          }
+        }
+
+        return false;
+      }
+      
+      function checkGatedCookieUpdated(checkCounter){
+        if(checkCounter < 20){
+          setTimeout(function(){
+            checkCounter++;
+            _edbg && console.log("Checking Gated Cookie -> Counter: "+checkCounter+"; URL:"+_eUF.getCookieVal("gated1"));
+            if ( _eUF.getCookieVal("gated") == _eUF.getCleanUrl() ) {
+              checkCounter = 1000;
+              $("#ty_div").show()
+              $("#form_body").hide(); 
+              $(".eloqua-spinner").removeClass("eloqua-spinner-2");
+              $("#body_lookup").show();
+            }
+            checkGatedCookieUpdated(checkCounter);
+          }, 100);
+        }
+      }
+  
+      function showVisitorEmail() {
+        _edbg && console.log("FUNC CALLED : showVisitorEmail()");
+
+        $("#elq-visitor-email").show();
+        $("#field13").closest(".field-row").hide();
+        $("#btnContinue").show();
+        $("#body_lookup").show();
+        $(".eloqua-spinner").removeClass("eloqua-spinner-2");
+      }
+      
+      function showContactFields() {
+        _edbg && console.log("FUNC CALLED : showContactFields()");
+
+        $("#field00").attr("readonly",true);
+        $("#elq-visitor-email").show();
+        $("#main_body").show();
+        $("#outer_spn").show();
+        //$("#btnSubmitContact").show().prop('disabled', true);
+        $("#Submit_contact").show().prop('disabled', false);
+        $("#body_lookup").show();
+        $(".eloqua-spinner").removeClass("eloqua-spinner-2");
+        
+      }
+            
+      function updateEmail() {
+        _edbg && console.log("FUNC CALLED : updateEmail()");
+
+        //lookup = false;
+        resetFormDisplay();
+        $("#field00").val("");
+        showVisitorEmail();
+      }
+      
+      function validateEmail(email) {
+        var re =
+          /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+      };
+  
+      function goToNextStep() {
+		_edbg && console.log("FUNC CALLED : goToNextStep()");
+
+        $(".error-text").text("").hide()
+        $(".field-label").removeClass("form_error");
+  
+        var strRequiredField = $("#spnRequiredField").text();
+        var strInvalidEmail = $("#spnInvalidEmail").text();
+  
+        var isFormValid = true;
+  
+        if ( $("#field00").val().trim().length == 0 ) {
+          $("#field00").siblings(".error-text").text(strRequiredField).show()
+                       .siblings(".field-label").addClass("form_error")
+                       .css("border-color", "red");
+          isFormValid = false;
+        }
+        if ( validateEmail($("#field00").val().trim()) == false ) {
+          $("#field00").siblings(".error-text").text(strInvalidEmail).show()
+                       .siblings(".field-label").addClass("form_error")
+                       .css("border-color", "red");
+          isFormValid = false;
+        }
+        
+        if (isFormValid) {
+        	setElqDataLookup('CheckContactByEmailEntered');
+        }        
+      }
+      
+      function validate_form() { 
+        _edbg && console.log("FUNC CALLED : validate_form()");
+
+        //reset form validation checks
+        $(".error-text").text("").hide()
+        $(".field-label").removeClass("form_error");
+        
+        // Put default  form error class for lblFormValidationCheck
+      	$("#lblFormValidationCheck").addClass("form_error");
+  
+        var strRequiredField = $("#spnRequiredField").text();
+        var strInvalidEmail = $("#spnInvalidEmail").text();
+  
+        var isFormValid = true;
+  
+        if ( $("#field00").val().trim().length == 0 ) {
+          $("#field00").siblings(".error-text").text(strRequiredField).show()
+                       .siblings(".field-label").addClass("form_error")
+                       .css("border-color", "red");
+          isFormValid = false;
+        }
+        if ( $("#field01").val().trim().length == 0 ) {
+          $("#field01").siblings(".error-text").text(strRequiredField).show()
+                       .siblings(".field-label").addClass("form_error")
+                       .css("border-color", "red");
+          isFormValid = false;
+        }
+        if ( $("#field02").val().trim().length == 0 ) {
+          $("#field02").siblings(".error-text").text(strRequiredField).show()
+                        .siblings(".field-label").addClass("form_error")
+                        .css("border-color", "red");
+          isFormValid = false;
+        }
+        if ( $("#field04").val().trim().length == 0 ) {
+          $("#field04").siblings(".error-text").text(strRequiredField).show()
+                        .siblings(".field-label").addClass("form_error")
+                        .css("border-color", "red");
+          isFormValid = false;
+        }
+  
+        if (!isFormValid) return isFormValid; //exit if form validation fails
+  
+        // Set return url field
+        var url = window.location.href;
+        if ( !( url.includes("?success=true") || url.includes("&success=true") ) ) {
+          url.includes("?") ? url+="&success=true" : url+="?success=true";
+        }
+        $("#r_url").val(url);
+  
+        // isFormValid = true;  // set true to check if cookie is updated ??
+        /*if ( isFormValid && ( profileEmailElq.length>0 && profileEmailElq!=$("#field00").val().trim()) ) {
+          
+          	//document.cookie="ELOQUA=;expires=Thu; 01 Jan 1970;domain=.keysight.com;path=/";
+        	//_elqQ.push(['elqVisitorGuid'," "]);
+          	//_elqQ.push(['elqTrackPageView']);
+            //_elqQ.push(['elqUseFirstPartyCookie', '']);
+            //_elqQ.push(['elqVisitorGuid'," "]);
+          	//_elqQ.push(['elqTrackPageView']);
+        }*/
+        
+        if ( isFormValid ) {
+        	// Remove form error class for lblFormValidationCheck when for above  validation check pass 
+      		$("#lblFormValidationCheck").removeClass("form_error");
+        
+      		var nowDate = new Date(); $("#hidfield34").val($("#field00").val() + "__" + nowDate.getFullYear()+'-'+(nowDate.getMonth()+1)+'-'+nowDate.getDate() + "__" + document.URL);
+          console.log($("#hidfield34").val());
+        
+        	if ( $("#field13").prop("checked") ) {
+              setKcomRememberMeCookie();
+            }
+        }
+  
+        return isFormValid;
+      }
+      
+       function setKcomRememberMeCookie() {
+        _edbg && console.log("FUNC CALLED : setKcomRememberMeCookie()");
+        
+
+        var strFirstName 	= $('input[name="firstName"]').val();
+        var strLastName 	= $('input[name="lastName"]').val();
+        var strEmailAddress = $('input[name="emailAddress"]').val();
+        
+        var host = window.location.host;
+        var strRememberMeAPIEndpoint = "https://www.keysight.com/etc/keysight/api/UpdateFormCookie"; 
+        strRememberMeAPIEndpoint = (host.includes("stgwww.keysight.com") ? strRememberMeAPIEndpoint.replace("www.keysight.com","stgwww.keysight.com") : strRememberMeAPIEndpoint );
+
+        //var strRememberMeCookieName = _eUF.getCookieVal('AGREMMEADV');
+         
+         $.ajax({
+           type: "POST",
+           async: false,
+           url: strRememberMeAPIEndpoint,
+           data: { FirstGivenName: strFirstName, LastName: strLastName, EmailAddress: strEmailAddress },
+           success: function (response) {
+             console.log("RememberMeAPI Post Success : \n" + response);
+             _eUF.createCookie("AGREMMEADV", response, 365);
+           },
+           error: function (error) {
+             console.log("RememberMeAPI Post Error :" + error);
+           }
+         });
+
+        }
+      
+      if (window.attachEvent) {window.attachEvent('onload', setFormDisplayOnWindowLoad);}
+        else if (window.addEventListener) {window.addEventListener('load', setFormDisplayOnWindowLoad, false);}
+        else {document.addEventListener('load', setFormDisplayOnWindowLoad, false);}
+
+      function setFormDisplayOnWindowLoad() {
+
+            _edbg && console.log("FUNC CALLED : window.onload()");
+
+		var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);      
+        //Override values as per prod/staging settings
+        $("#frmELQ").attr("action", ( isChrome ? EloquaFormPostURL2: EloquaFormPostURL) );
+		$('input[name="elqFormName"]').val(EloquaFormName);
+        $('input[name="elqSiteId"]').val(EloquaSiteID);
+
+		setElqDataLookup('CheckVisitor');      
+        
+        fSetUData();
+      	redirect_to_assets();
+  
+      };
+      
+      function redirect_to_assets() {
+        _edbg && console.log("FUNC CALLED : redirect_to_assets()");
+
+        var url = window.location.href;
+        var docUrl = document.getElementById('doc_Url').value;
+
+        if ((url.indexOf('?' + 'success=true') !== -1) || (url.indexOf('&' + 'success=true') !== -1)) {
+          document.getElementById('body_lookup').style.display = 'block';
+          document.getElementById('form_body').style.display = 'none';
+          document.getElementById('ty_div').style.display = 'block';
+
+          if (docUrl !== '') {
+            setTimeout(function () {
+              window.top.location = docUrl;
+            }, 2000);
+          };
+        };
+      };
+      
+    </script>
+    <script>
+      
+      function fSetUData(){ var isOpera=(!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >=0; var isFirefox=typeof InstallTrigger !=='undefined'; var isSafari=/constructor/i.test(window.HTMLElement) || (function (p){ return p.toString()==="[object SafariRemoteNotification]";})(!window['safari'] || (typeof safari !=='undefined' && safari.pushNotification)); var isIE=false || !!document.documentMode; var isEdge=!isIE && !!window.StyleMedia; var isChrome=!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime); var isEdgeChromium=isChrome && (navigator.userAgent.indexOf("Edg") !=-1); var isBlink=(isChrome || isOpera) && !!window.CSS; var vBrowser="Browser:Other"; if(isBlink){vBrowser="Browser:Blink"} if(isEdgeChromium){vBrowser="Browser:EdgeChromium"} if(isFirefox){vBrowser="Browser:FireFox"} if(isSafari){vBrowser="Browser:Safari"} if(isIE){vBrowser="Browser:IE"} if(isEdge){vBrowser="Browser:Edge"} if(isChrome){vBrowser="Browser:Chrome"} $("#hidfield33").val(vBrowser+";");}
+  
+    </script>
+  
+  
+  
+  <div id="body_lookup" style="display: none">
+  <!--div id="body_lookup" style="display: none"-->
+  
+    
+    <div id="form_body">
+      <form method="post" id="frmELQ" name="frmKGSOPostSalesGatedDocument" action="https://connectlp.keysight.com/e/f2?v=1" onsubmit="return validate_form();"> 
+  
+        <!--input type="hidden" name="elqFormName" 	value="ProgressiveProfiling-AEM_07_09_2019Responsive"-->
+        <input type="hidden" name="elqFormName" 	value="frmKGSOPostSalesGatedDocument">
+        <input type="hidden" name="elqSiteId" 	value="609785623">
+        <input type="hidden" name="elqCampaignId" >
+        <input type="hidden" id="r_url" 	name="Redirect_URL"  >
+        <input type="hidden" id="doc_Url" name="document_URL" value="">
+        
+        <input type="hidden" id="hidfield01" name="solutionProduct" value="">
+        <input type="hidden" id="hidfield02" name="models" value="">
+        <input type="hidden" id="hidfield03" name="funnel" value="">
+        <input type="hidden" id="hidfield04" name="proposed-product-models" value=""> 
+        <input type="hidden" id="hidfield05" name="product-lines" value="">
+        <input type="hidden" id="hidfield06" name="interaction-type" value="AEM PostSales Asset">
+        <input type="hidden" id="hidfield07" name="mid" value="">
+        <input type="hidden" id="hidfield08" name="english-name" value="">
+        <input type="hidden" id="hidfield09" name="ref-page" value="">
+        <input type="hidden" id="hidfield10" name="content-type" value="">
+        <input type="hidden" id="hidfield11" name="campaign" value="">
+        <input type="hidden" id="hidfield12" name="business-unit" value="">
+        <input type="hidden" id="hidfield13" name="pub-num" value="">
+        <input type="hidden" id="hidfield14" name="cmpid" value="">
+        <input type="hidden" id="hidfield15" name="utm_source" value="">
+        <input type="hidden" id="hidfield16" name="utm_medium" value="">
+        <input type="hidden" id="hidfield17" name="utm_campaign" value="">
+        <input type="hidden" id="hidfield18" name="web-source" value="">
+        <input type="hidden" id="hidfield19" name="product-category" value="">
+        <input type="hidden" id="hidfield20" name="product-formfactor" value="">
+        <input type="hidden" id="hidfield32" name="v_locale" value="KO">
+        <input type="hidden" id="hidfield33" name="v_data" value="LP-Locale:KO;">
+        <input type="hidden" id="hidfield34" name="submit_unique_value" value="">
+  
+        <span id="spnRequiredField" style="display: none">필수입력항목</span>
+        <span id="spnInvalidEmail"  style="display: none">유효한 이메일 주소를 입력해 주세요.</span>
+  
+        <div id="elq-visitor-email" style="display: none">
+          <div id="epp0" class="field-row">
+            <div></div>
+            <div>
+              <div>
+                <p>
+                  <span id="outer_spn" style="display: none"> 
+                    <span id="pop_email"></span> 
+                    <a style="cursor: pointer;text-decoration: underline" onclick="updateEmail()">이메일 변경하기</a></span><br />
+                  <label id="lbl00" for="field00" class="field-label">이메일 주소<span>*</span></label>
+                  <input id="field00" name="emailAddress" type="text" value="" >
+                  <span id="span00" class="error-text" style="display: none;color: red"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="main_body" style="display: none">        
+          <!-- Main Body Validation Check - For AEM JS code only (to be reviewed after AEM JS revision )-->
+          
+          <label id="lblFormValidationCheck" class="" style="display: none"></label>
+          
+          <!-- Main Body Validation Check ends -->
+          
+          <div id="epp1" class="field-row">
+            <div></div>
+            <div>
+              <div>
+                <p><label id="lbl01" for="field01" class="field-label">이름<span>*</span></label>
+                  <input id="field01" name="firstName" type="text" value="" >
+                  <span id="span01" class="error-text" style="display: none;color: red"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="epp2" class="field-row">
+            <div></div>
+            <div>
+              <div>
+                <p><label id="lbl02" for="field02" class="field-label">성<span>*</span></label>
+                  <input id="field02" name="lastName" type="text" value="" >
+                  <span id="span02" class="error-text" style="display: none;color: red"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="epp4" class="field-row">
+            <div></div>
+            <div>
+              <div>
+                <p>
+                  <label id="lbl04" for="field04" class="field-label">국가<span>*</span></label>
+                  <select id="field04" name="country" > <option value="" selected="selected">--선택해 주시기 바랍니다.--</option>
+                  <option value="KR">대한민국</option>
+                  <option value="AX">Åland Islands</option>
+                  <option value="AF">Afghanistan</option>
+                  <option value="AL">Albania</option>
+                  <option value="DZ">Algeria</option>
+                  <option value="AS">American Samoa</option>
+                  <option value="AD">Andorra</option>
+                  <option value="AO">Angola</option>
+                  <option value="AI">Anguilla</option>
+                  <option value="AQ">Antarctica</option>
+                  <option value="AG">Antigua and Barbuda</option>
+                  <option value="AR">Argentina</option>
+                  <option value="AM">Armenia</option>
+                  <option value="AW">Aruba</option>
+                  <option value="AU">Australia</option>
+                  <option value="AT">Austria</option>
+                  <option value="AZ">Azerbaijan</option>
+                  <option value="BS">Bahamas</option>
+                  <option value="BH">Bahrain</option>
+                  <option value="BD">Bangladesh</option>
+                  <option value="BB">Barbados</option>
+                  <option value="BY">Belarus</option>
+                  <option value="BE">Belgium</option>
+                  <option value="BZ">Belize</option>
+                  <option value="BJ">Benin</option>
+                  <option value="BM">Bermuda</option>
+                  <option value="BT">Bhutan</option>
+                  <option value="BO">Bolivia</option>
+                  <option value="BA">Bosnia and Herzegovina</option>
+                  <option value="BW">Botswana</option>
+                  <option value="BV">Bouvet Island</option>
+                  <option value="BR">Brazil</option>
+                  <option value="IO">Brit/Indian Ocean Terr.</option>
+                  <option value="BN">Brunei Darussalam</option>
+                  <option value="BG">Bulgaria</option>
+                  <option value="BF">Burkina Faso</option>
+                  <option value="BI">Burundi</option>
+                  <option value="CI">Côte d'Ivoire</option>
+                  <option value="KH">Cambodia</option>
+                  <option value="CM">Cameroon</option>
+                  <option value="CA">Canada</option>
+                  <option value="IC">Canary Islands</option>
+                  <option value="CV">Cape Verde</option>
+                  <option value="KY">Cayman Islands</option>
+                  <option value="CF">Central African Republic</option>
+                  <option value="TD">Chad</option>
+                  <option value="CL">Chile</option>
+                  <option value="CN">China</option>
+                  <option value="CX">Christmas Island</option>
+                  <option value="CC">Cocos (Keeling) Islands</option>
+                  <option value="CO">Colombia</option>
+                  <option value="KM">Comoros</option>
+                  <option value="CG">Congo</option>
+                  <option value="CD">Congo, The Dem. Republic Of</option>
+                  <option value="CK">Cook Islands</option>
+                  <option value="CR">Costa Rica</option>
+                  <option value="HR">Croatia</option>
+                  <option value="CU">Cuba</option>
+                  <option value="CY">Cyprus</option>
+                  <option value="CZ">Czech Republic</option>
+                  <option value="DK">Denmark</option>
+                  <option value="DJ">Djibouti</option>
+                  <option value="DM">Dominica</option>
+                  <option value="DO">Dominican Republic</option>
+                  <option value="EC">Ecuador</option>
+                  <option value="EG">Egypt</option>
+                  <option value="SV">El Salvador</option>
+                  <option value="GQ">Equatorial Guinea</option>
+                  <option value="ER">Eritrea</option>
+                  <option value="EE">Estonia</option>
+                  <option value="ET">Ethiopia</option>
+                  <option value="FK">Falkland Islands</option>
+                  <option value="FO">Faroe Islands</option>
+                  <option value="FJ">Fiji</option>
+                  <option value="FI">Finland</option>
+                  <option value="FR">France</option>
+                  <option value="GF">French Guiana</option>
+                  <option value="PF">French Polynesia</option>
+                  <option value="TF">French Southern Terr.</option>
+                  <option value="GA">Gabon</option>
+                  <option value="GM">Gambia</option>
+                  <option value="GE">Georgia</option>
+                  <option value="DE">Germany</option>
+                  <option value="GH">Ghana</option>
+                  <option value="GI">Gibraltar</option>
+                  <option value="GR">Greece</option>
+                  <option value="GL">Greenland</option>
+                  <option value="GD">Grenada</option>
+                  <option value="GP">Guadeloupe</option>
+                  <option value="GU">Guam</option>
+                  <option value="GT">Guatemala</option>
+                  <option value="GN">Guinea</option>
+                  <option value="GW">Guinea-Bissau</option>
+                  <option value="GY">Guyana</option>
+                  <option value="HT">Haiti</option>
+                  <option value="HM">Heard/McDonald Isls.</option>
+                  <option value="HN">Honduras</option>
+                  <option value="HK">Hong Kong, China</option>
+                  <option value="HU">Hungary</option>
+                  <option value="IS">Iceland</option>
+                  <option value="IN">India</option>
+                  <option value="ID">Indonesia</option>
+                  <option value="IR">Iran</option>
+                  <option value="IQ">Iraq</option>
+                  <option value="IE">Ireland</option>
+                  <option value="IL">Israel</option>
+                  <option value="IT">Italy</option>
+                  <option value="JM">Jamaica</option>
+                  <option value="JP">Japan</option>
+                  <option value="JO">Jordan</option>
+                  <option value="KZ">Kazakhstan</option>
+                  <option value="KE">Kenya</option>
+                  <option value="KI">Kiribati</option>
+                  <option value="KW">Kuwait</option>
+                  <option value="KG">Kyrgyzstan</option>
+                  <option value="LA">Laos</option>
+                  <option value="LV">Latvia</option>
+                  <option value="LB">Lebanon</option>
+                  <option value="LS">Lesotho</option>
+                  <option value="LR">Liberia</option>
+                  <option value="LY">Libya</option>
+                  <option value="LI">Liechtenstein</option>
+                  <option value="LT">Lithuania</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="MO">Macau</option>
+                  <option value="MK">Macedonia</option>
+                  <option value="MG">Madagascar</option>
+                  <option value="MW">Malawi</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="MV">Maldives</option>
+                  <option value="ML">Mali</option>
+                  <option value="MT">Malta</option>
+                  <option value="MH">Marshall Islands</option>
+                  <option value="MQ">Martinique</option>
+                  <option value="MR">Mauritania</option>
+                  <option value="MU">Mauritius</option>
+                  <option value="YT">Mayotte</option>
+                  <option value="MX">Mexico</option>
+                  <option value="FM">Micronesia</option>
+                  <option value="MD">Moldova</option>
+                  <option value="MC">Monaco</option>
+                  <option value="MN">Mongolia</option>
+                  <option value="ME">Montenegro</option>
+                  <option value="MS">Montserrat</option>
+                  <option value="MA">Morocco</option>
+                  <option value="MZ">Mozambique</option>
+                  <option value="MM">Myanmar</option>
+                  <option value="MP">N. Mariana Isls.</option>
+                  <option value="NA">Namibia</option>
+                  <option value="NR">Nauru</option>
+                  <option value="NP">Nepal</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="AN">Netherlands Antilles</option>
+                  <option value="NC">New Caledonia</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="NI">Nicaragua</option>
+                  <option value="NE">Niger</option>
+                  <option value="NG">Nigeria</option>
+                  <option value="NU">Niue</option>
+                  <option value="NF">Norfolk Island</option>
+                  <option value="NO">Norway</option>
+                  <option value="OM">Oman</option>
+                  <option value="PK">Pakistan</option>
+                  <option value="PW">Palau</option>
+                  <option value="PS">Palestinian Territory, Occupied</option>
+                  <option value="PA">Panama</option>
+                  <option value="PG">Papua New Guinea</option>
+                  <option value="PY">Paraguay</option>
+                  <option value="PE">Peru</option>
+                  <option value="PH">Philippines</option>
+                  <option value="PN">Pitcairn</option>
+                  <option value="PL">Poland</option>
+                  <option value="PT">Portugal</option>
+                  <option value="PR">Puerto Rico</option>
+                  <option value="QA">Qatar</option>
+                  <option value="RE">Reunion</option>
+                  <option value="RO">Romania</option>
+                  <option value="RU">Russian Federation</option>
+                  <option value="RW">Rwanda</option>
+                  <option value="KN">Saint Kitts and Nevis</option>
+                  <option value="LC">Saint Lucia</option>
+                  <option value="WS">Samoa</option>
+                  <option value="SM">San Marino</option>
+                  <option value="ST">Sao Tome/Principe</option>
+                  <option value="SA">Saudi Arabia</option>
+                  <option value="SN">Senegal</option>
+                  <option value="RS">Serbia</option>
+                  <option value="CS">Serbia and Montenegro</option>
+                  <option value="SC">Seychelles</option>
+                  <option value="SL">Sierra Leone</option>
+                  <option value="SG">Singapore</option>
+                  <option value="SK">Slovak Republic</option>
+                  <option value="SI">Slovenia</option>
+                  <option value="SB">Solomon Islands</option>
+                  <option value="SO">Somalia</option>
+                  <option value="ZA">South Africa</option>
+                  <option value="ES">Spain</option>
+                  <option value="LK">Sri Lanka</option>
+                  <option value="SH">St. Helena</option>
+                  <option value="PM">St. Pierre and Miquelon</option>
+                  <option value="VC">St. Vincent and Grenadines</option>
+                  <option value="SD">Sudan</option>
+                  <option value="SR">Suriname</option>
+                  <option value="SJ">Svalbard/Jan Mayen Isls.</option>
+                  <option value="SZ">Swaziland</option>
+                  <option value="SE">Sweden</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="SY">Syria</option>
+                  <option value="TW">Taiwan, China</option>
+                  <option value="TJ">Tajikistan</option>
+                  <option value="TZ">Tanzania</option>
+                  <option value="TH">Thailand</option>
+                  <option value="TL">Timor-Leste</option>
+                  <option value="TG">Togo</option>
+                  <option value="TK">Tokelau</option>
+                  <option value="TO">Tonga</option>
+                  <option value="TT">Trinidad and Tobago</option>
+                  <option value="TN">Tunisia</option>
+                  <option value="TR">Turkey</option>
+                  <option value="TM">Turkmenistan</option>
+                  <option value="TC">Turks/Caicos Isls.</option>
+                  <option value="TV">Tuvalu</option>
+                  <option value="UG">Uganda</option>
+                  <option value="UA">Ukraine</option>
+                  <option value="AE">United Arab Emirates</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="US">United States</option>
+                  <option value="UY">Uruguay</option>
+                  <option value="UM">US Minor Outlying Is.</option>
+                  <option value="UZ">Uzbekistan</option>
+                  <option value="VU">Vanuatu</option>
+                  <option value="VA">Vatican City</option>
+                  <option value="VE">Venezuela</option>
+                  <option value="VN">Viet Nam</option>
+                  <option value="VG">Virgin Islands (British)</option>
+                  <option value="VI">Virgin Islands (U.S.)</option>
+                  <option value="WF">Wallis/Futuna Isls.</option>
+                  <option value="EH">Western Sahara</option>
+                  <option value="YE">Yemen</option>
+                  <option value="ZM">Zambia</option>
+                  <option value="ZW">Zimbabwe</option>
+                  </select>
+                  <span id="span04" class="error-text" style="display: none;color: red"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div> <!-- Div Main Body ends --> 
+        
+        <div id="epp12" class="field-row">
+          <p> 
+                <label><input name="PrivacyCheckBox" id="field12" type="checkbox" value="True" />키사이트 마케팅 및 프로모션 광고성 정보 수신<br><br>네모 박스를 체크하시면 이메일, 전화 및 문자 광고성 정보 수신동의를 의미합니다. (참고: 이미 수신 동의를 한 경우 체크하지 않아도 광고성 정보를 계속 받을 수 있으며, 만약 수신 거부를 원하는 경우 www.keysight.co.kr/go/nw_privacy 에서 신청할 수 있습니다.)</label>
+          </p>
+        </div>
+  
+        <div id="epp13" class="field-row">
+          <p> 
+                <label><input name="rememberme" id="field13" type="checkbox" value="True" />내 정보 기억하기</label>
+          </p>
+        </div>
+        <!-- to check the code css -->
+        <div id="privacy"><br>[키사이트 개인정보 수집 및 이용]<br>1. 개인정보 수집 및 이용 동의<br>2. 키사이트 파트너 업무 위탁 동의<br>3. 키사이트 해외 본사 및 지사 제공 동의<br><br>“다운로드”를 클릭하시면 개인정보 수집 및 이용에 동의한 것으로 간주합니다. 보다 자세한 내용은  <a href="http://www.keysight.co.kr/go/nw_privacy?elqTrackId=2b46f27e309e46c994d4231838bc8801" target="_blank" class=" alink-red">개인정보보호정책</a>을 참조하시기 바랍니다.<br>
+        </div>
+  
+        <div class="field-row">  
+          <div></div>
+          <div>
+            <div>
+              <p>
+                <input type="button" value="계속" id="btnContinue" onclick="goToNextStep()">
+                <input type="submit" id="Submit_contact" value="다운로드"></p>
+              <!--input type="submit" id="btnSubmitContact" value="Download"-->
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+      
+    <!-- Updated on March 31, 2020 -->
+    <div id="ty_div" style="display: none">감사합니다!</div>
+    
+  <!-- "Main_Body ends here -->
+  </div>
+  </div>
+  
+  <!-- Outside HTML -->
+  
+  
+
+			<div class="eloqua-spinner"></div>
+		
+		
+	
+
+
+
+</div>
+
+
+		</div>
+		</div>
+	
+    
+	
+    
+	
+  </div>
+
+<div style="clear:both" class="clearfix"></div>
+<script>
+	resizeCTAButtons();
+</script>
+
+		</div>
+	</div>
+
+<div style="clear:both" class="clearfix"></div>
+<script>
+	resizeCTAButtons();
+</script></div>
+
+    
+</div></div>
+<div class="keysight-footer aem-GridColumn aem-GridColumn--default--12">
+<div id="footer">
+    <div class="wrapper">
+      
+      <div id="copyright">
+        <ul>
+		
+				<li>&copy; 키사이트테크놀로지스 2000&ndash;2021</li>
+		
+			
+			  <li>
+				
+				<a href="/kr/ko/contact/privacy.html" data-location="Footer" data-name="Footer" data-trigger="false" data-value="개인정보 보호정책" class="dtmData">개인정보 보호정책</a>
+			  </li>
+			
+			  <li>
+				
+				<a href="/kr/ko/contact/terms-of-use.html" data-location="Footer" data-name="Footer" data-trigger="false" data-value="이용 약관" class="dtmData">이용 약관</a>
+			  </li>
+			
+			  <li>
+				
+				<a href="/kr/ko/contact/support/site-feedback.html" data-location="Footer" data-name="Footer" data-trigger="false" data-value="피드백" class="dtmData">피드백</a>
+			  </li>
+			
+			
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+</div></div>
+
+    
+</div></div>
+<div class="experiencefragment_additionalinfo commerce-experience-fragment experiencefragment">
+
+    
+        
+    
+    
+</div>
+<div class="experiencefragment_contact commerce-experience-fragment experiencefragment">
+
+    
+        
+    
+    
+</div>
+
+    </div><!-- component -->
+</meta>
+<!-- DTM Tracking -->
+<!--<script type="text/javascript">_satellite.pageBottom();</script>-->
+
+<!--script type="text/javascript" src="/main/assets/scripts/logintimeoutlang.js"></script>
+<script type="text/javascript" src="/main/assets/scripts/logintimeout-aem.js"></script>
+<script type="text/javascript" src="/main/assets/scripts/sso-auth.js"></script -->
+<script type="text/javascript" src="https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
+
+<script>
+    window.KEYSIGHT = window.KEYSIGHT || {};
+    KEYSIGHT.quoteStrings = {
+        cancel: "이메일 취소",
+        next: "다음",
+        selectConfiguration: "Select a configuration below",
+        usuallyArrivesText: "Usually arrives in {0} weeks",
+        customConfiguration: "맞춤형 구성",
+        callForAvailability: "납기확인 전화필요",
+        configuratorPriceMessage: "Prices will be shown in your Quote."
+    }
+</script>
+
+	 	
+    
+<script type="text/javascript" src="/etc/designs/keysight/clienlibs/quote.min.80ddd00eaa5d888db4ad57c834a9de54.js"></script>
+<script type="text/javascript" src="/etc/designs/keysight/clienlibs/main.min.4d19a4a0ad3792a934f3a4c68b0eb657.js"></script>
+<script type="text/javascript" src="/etc/designs/keysight/clienlibs/ocp.min.76228cd28af75072bb06b30446eb4fe8.js"></script>
+
+
+
+</meta>
+		<script type="text/javascript">
+		  initQuote();
+		</script>
+	</body> 
+</html>
+

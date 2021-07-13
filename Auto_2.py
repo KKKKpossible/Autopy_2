@@ -1,6 +1,7 @@
 import Auto_Class as Ac
 import tkinter as tk
-
+import pyvisa
+import time
 
 if __name__ == "__main__":
     # main dialog

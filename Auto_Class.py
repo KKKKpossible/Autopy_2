@@ -5,6 +5,9 @@ import pyautogui as pg  # message box library
 from tkinter import filedialog as fd  # import file dialog
 import os
 from functools import partial
+import Instrument
+import time
+import numpy as np
 
 
 class ExcelVariableDeclare:
@@ -20,7 +23,10 @@ class ExcelVariableDeclare:
         self.freq_var = []
         self.input_offset_var = []
         self.output_offset_var = []
-        self.voltage_var = ""
+        self.power_voltage_var = ""
+        self.power_current_var = ""
+        self.power_current_limit_var = ""
+        self.power_meter_probe_var = ""
         self.aging_var = ""
         self.source_com_var = ""
         self.power_com_var = ""
@@ -32,14 +38,20 @@ class ExcelVariableDeclare:
         self.power_comm_option = ""  # GPIB, USB, Serial
         self.power_meter_comm_option = ""  # GPIB, USB, Serial
 
+        self.multiple_select_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.select_freq_var = []  # select freq var
+
         self.freq_cell_name = ""  # default Frequency
         self.input_cell_name = ""  # default Input offset
         self.output_cell_name = ""  # default Output offset
-        self.power_cell_name = ""  # default Power Voltage
+        self.power_voltage_cell_name = ""  # default Power Voltage
+        self.power_current_cell_name = ""  # default Power Voltage
+        self.power_meter_probe_cell_name = ""  # default Power Voltage
         self.aging_cell_name = ""  # default Aging time
         self.source_comm_cell_name = ""  # default Source generate
         self.power_comm_cell_name = ""  # default Power supply
         self.power_meter_comm_cell_name = ""  # default Power meter
+        self.select_freq_cell_name = ""  # default Select Freq
 
         self.source_baud_rate = ""  # default Source generate
         self.power_baud_rate = ""  # default Power supply
@@ -93,6 +105,7 @@ class CommonDialogVar:
         self.atr_input_offset = tkinter.StringVar()
         self.atr_output_offset = tkinter.StringVar()
         self.atr_power_voltage = tkinter.StringVar()
+        self.atr_power_current = tkinter.StringVar()
         self.atr_aging_time = tkinter.StringVar()
         self.atr_rf_output = tkinter.StringVar()
         self.atr_current = tkinter.StringVar()
@@ -110,6 +123,19 @@ class CommonDialogVar:
         self.atr_rf_var = []
         self.atr_current_var = []
 
+        self.atr_p1_state = ""
+
+        self.inst_source = ""
+        self.inst_power = ""
+        self.inst_power_meter = ""
+
+        self.atr_index = 0
+
+    def root_close(self):
+        self.g_root.withdraw()
+        self.g_root.quit()
+
+
 class ExcelCommonVar:
     def __init__(self):
         self.excel_data_name_row = 1
@@ -119,6 +145,8 @@ class ExcelCommonVar:
         self.excel_input_unit = ["dB"]
         self.excel_output_unit = ["dB"]
         self.excel_power_unit = ["V"]
+        self.excel_current_unit = ["A"]
+        self.excel_power_meter_probe_unit = ["Channel"]
         self.excel_aging_unit = ["sec", "min", "hour"]
         self.excel_com_unit = ["GPIB", "USB", "Serial"]
         self.rf_power = []
@@ -126,11 +154,14 @@ class ExcelCommonVar:
         self.excel_freq_column = "A"
         self.excel_input_column = "B"
         self.excel_output_column = "C"
-        self.excel_power_column = "D"
-        self.excel_aging_column = "E"
-        self.excel_source_com_column = "F"
-        self.excel_power_com_column = "G"
-        self.excel_power_meter_com_column = "H"
+        self.excel_power_voltage_column = "D"
+        self.excel_power_current_column = "E"
+        self.excel_power_meter_probe_column = "F"
+        self.excel_aging_column = "G"
+        self.excel_source_com_column = "H"
+        self.excel_power_com_column = "I"
+        self.excel_power_meter_com_column = "J"
+        self.excel_select_freq = "K"
         self.save_hor = True
 
 
@@ -174,7 +205,7 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         print(self.freq_var)
         print(self.input_offset_var)
         print(self.output_offset_var)
-        print(self.voltage_var)
+        print(self.power_voltage_var)
         print(self.aging_var)
         print(self.source_com_var)
         print(self.power_com_var)
@@ -196,19 +227,19 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                 pg.alert(text="No data exist",
                          title="Error",
                          button="확인")
-                return;
+                return
 
             if (len(rf_var) != len(self.freq_var)) or (len(rf_var) <= 0):
                 pg.alert(text="RF data error\n" + "ex) ATR not started",
                          title="Error",
                          button="확인")
-                return;
+                return
 
             if (len(curr_var) != len(self.freq_var)) or (len(rf_var) <= 0):
                 pg.alert(text="Current data error\n" + "ex) ATR not started",
                          title="Error",
                          button="확인")
-                return;
+                return
 
             self.w_wb = Workbook()
             self.w_ws_list.append(self.w_wb.create_sheet("ATR"))
@@ -245,19 +276,25 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         # 1. freq config
         # 2. check input offset
         # 3. check output offset
-        # 4. check power voltage
-        # 5. check start aging time
-        # 6. check source generate communication
-        # 7. check power supply communication
-        # 8. check power meter communication
-        # 9. load freq
-        # 10. load input db
-        # 11. load output db
-        # 12. load Voltage
-        # 13. load Start aging time
-        # 14. load source generate communication
-        # 15. load power supply communication
-        # 16. load power meter communication
+        # 4. check power voltage set
+        # 5. check power current limit
+        # 6. check power meter probe channel
+        # 7. check start aging time
+        # 8. check source generate communication
+        # 9. check power supply communication
+        # 10. check power meter communication
+        # 11. check select frequency
+        # 12. load freq
+        # 13. load input db
+        # 14. load output db
+        # 15. load Voltage set
+        # 16. load Current limit
+        # 17. load power meter probe channel
+        # 18. load Start aging time
+        # 19. load source generate communication
+        # 20. load power supply communication
+        # 21. load power meter communication
+        # 22. load select frequency
 
         # 1. freq config
         self.__get_unit_from_column(self.excel_freq_column)
@@ -265,35 +302,46 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         self.__get_unit_from_column(self.excel_input_column)
         # 3. check output offset
         self.__get_unit_from_column(self.excel_output_column)
-        # 4. check power voltage
-        self.__get_unit_from_column(self.excel_power_column)
-        # 5. check start aging time
+        # 4. check power voltage set
+        self.__get_unit_from_column(self.excel_power_voltage_column)
+        # 5. check power current limit
+        self.__get_unit_from_column(self.excel_power_current_column)
+        # 6. check power meter probe channel
+        self.__get_unit_from_column(self.excel_power_meter_probe_column)
+        # 7. check start aging time
         self.__get_unit_from_column(self.excel_aging_column)
-        # 6. check source generate communication
+        # 8. check source generate communication
         self.__get_unit_from_column(self.excel_source_com_column)
-        # 7. check power supply communication
+        # 9. check power supply communication
         self.__get_unit_from_column(self.excel_power_com_column)
-        # 8. check power meter communication
+        # 10. check power meter communication
         self.__get_unit_from_column(self.excel_power_meter_com_column)
-        # 9. load freq
+        # 11. check select frequency
+        self.__get_unit_from_column(self.excel_select_freq)
+        # 12. load freq
         self.__load_var_from_column(self.excel_freq_column)
-        # 10. load input db
+        # 13. load input db
         self.__load_var_from_column(self.excel_input_column)
-        # 11. load output db
+        # 14. load output db
         self.__load_var_from_column(self.excel_output_column)
-        # 12. load Voltage
-        self.__load_var_from_column(self.excel_power_column)
-        # 13. load Start aging time
+        # 15. load Voltage set
+        self.__load_var_from_column(self.excel_power_voltage_column)
+        # 16. load Current limit
+        self.__load_var_from_column(self.excel_power_current_column)
+        # 17. load power meter probe channel
+        self.__load_var_from_column(self.excel_power_meter_probe_column)
+        # 18. load Start aging time
         self.__load_var_from_column(self.excel_aging_column)
-        # 14. load source generate communication
+        # 19. load source generate communication
         self.__load_var_from_column(self.excel_source_com_column)
-        # 15. load power supply communication
+        # 20. load power supply communication
         self.__load_var_from_column(self.excel_power_com_column)
-        # 16. load power meter communication
+        # 21. load power meter communication
         self.__load_var_from_column(self.excel_power_meter_com_column)
+        # 22. load select frequency
+        self.__load_var_from_column(self.excel_select_freq)
 
     def __get_unit_from_column(self, column):
-
         d_name_cell = column + str(self.excel_data_name_row)
         d_unit_cell = column + str(self.excel_data_unit_row)
         if column == self.excel_freq_column:
@@ -334,11 +382,29 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                          button="확인")
                 self.load_clear = False
                 return
-        elif column == self.excel_power_column:
-            self.power_cell_name = d_name_cell
+        elif column == self.excel_power_voltage_column:
+            self.power_voltage_cell_name = d_name_cell
             if self.l_ws_list[0][d_unit_cell].value != self.excel_power_unit[0]:
                 print("V not defined")
                 pg.alert(text="Power voltage unit 설정되지 않음\n" + "ex) V",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_power_current_column:
+            self.power_current_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value != self.excel_current_unit[0]:
+                print("A not defined")
+                pg.alert(text="Power current unit 설정되지 않음\n" + "ex) A",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_power_meter_probe_column:
+            self.power_meter_probe_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value != self.excel_power_meter_probe_unit[0]:
+                print("Probe channel not defined")
+                pg.alert(text="Power meter probe channel 설정되지 않음\n" + "ex) Channel",
                          title="Error",
                          button="확인")
                 self.load_clear = False
@@ -378,14 +444,14 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                 self.load_clear = False
                 return
         elif column == self.excel_power_com_column:
-            self.source_comm_option = ""
-            self.source_comm_cell_name = d_name_cell
+            self.power_comm_option = ""
+            self.power_comm_cell_name = d_name_cell
             if self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[0]:
-                self.source_comm_option = self.excel_com_unit[0]  # GPIB
+                self.power_comm_option = self.excel_com_unit[0]  # GPIB
             elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[1]:
-                self.source_comm_option = self.excel_com_unit[1]  # USB
+                self.power_comm_option = self.excel_com_unit[1]  # USB
             elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
-                self.source_comm_option = self.excel_com_unit[2]  # Serial
+                self.power_comm_option = self.excel_com_unit[2]  # Serial
                 self.source_baud_rate = self.l_ws_list[0][d_unit_cell + 1].value
             else:
                 print("Power supply communication option error")
@@ -396,17 +462,37 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                 self.load_clear = False
                 return
         elif column == self.excel_power_meter_com_column:
-            self.source_comm_cell_name = d_name_cell
+            self.power_meter_comm_cell_name = d_name_cell
             if self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[0]:
-                self.source_comm_option = self.excel_com_unit[0]  # GPIB
+                self.power_meter_comm_option = self.excel_com_unit[0]  # GPIB
             elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[1]:
-                self.source_comm_option = self.excel_com_unit[1]  # USB
+                self.power_meter_comm_option = self.excel_com_unit[1]  # USB
             elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
-                self.source_comm_option = self.excel_com_unit[2]  # Serial
+                self.power_meter_comm_option = self.excel_com_unit[2]  # Serial
             else:
                 print("Power meter communication option error")
                 pg.alert(text="Power meter communication unit 설정되지 않음\n"
                               + "ex) GPIB, USB, Serial\nSerial baud rate 필요",
+                         title="Error",
+                         button="확인")
+                self.load_clear = False
+                return
+        elif column == self.excel_select_freq:
+            self.multiple_select_freq = 0
+            self.select_freq_cell_name = d_name_cell
+            if self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[0]:
+                self.multiple_select_freq = 1
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[1]:
+                self.multiple_select_freq = 1 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[2]:
+                self.multiple_select_freq = 1 * 1000 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[3]:
+                self.multiple_select_freq = 1 * 1000 * 1000 * 1000
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_freq_unit[4]:
+                self.multiple_select_freq = 1 * 1000 * 1000 * 1000 * 1000
+            else:
+                print("Hz not defined")
+                pg.alert(text="Select freq unit 설정되지 않음\n" + "ex) Hz, KHz, MHz, GHz, THz",
                          title="Error",
                          button="확인")
                 self.load_clear = False
@@ -428,8 +514,12 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                 self.input_offset_var.append(self.l_ws_list[0][_data_cell].value)
             elif data_column == self.excel_output_column:
                 self.output_offset_var.append(self.l_ws_list[0][_data_cell].value)
-            elif data_column == self.excel_power_column:
-                self.voltage_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_power_voltage_column:
+                self.power_voltage_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_power_current_column:
+                self.power_current_limit_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_power_meter_probe_column:
+                self.power_meter_probe_var = self.l_ws_list[0][_data_cell].value
             elif data_column == self.excel_aging_column:
                 self.aging_var = self.l_ws_list[0][_data_cell].value * self.multiple_aging
             elif data_column == self.excel_source_com_column:
@@ -438,10 +528,12 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
                 self.power_com_var = self.l_ws_list[0][_data_cell].value
             elif data_column == self.excel_power_meter_com_column:
                 self.power_meter_com_var = self.l_ws_list[0][_data_cell].value
+            elif data_column == self.excel_select_freq:
+                self.select_freq_var.append(self.l_ws_list[0][_data_cell].value * self.multiple_select_freq)
             else:
                 print("Error 등록되지 않은 id")
                 self.load_clear = False
-                return;
+                return
             i += 1
             _data_cell = data_column + str(i)
 
@@ -629,7 +721,7 @@ class Dialog(CommonDialogVar):
         elif _id == self.remote_all_id:
             pass
         elif _id == self.atr_power_id:
-            new_window.geometry("700x500")
+            new_window.geometry("800x500")
             new_window.title("Power ATR")
             new_window.iconbitmap("exodus.ico")
             new_window.resizable(False, False)
@@ -654,9 +746,12 @@ class Dialog(CommonDialogVar):
             # Power voltage label
             label = tkinter.Label(new_window, text="Power voltage")
             label.grid(row=1, column=3, sticky="NEWS")
+            # Power current label
+            label = tkinter.Label(new_window, text="Power current")
+            label.grid(row=1, column=4, sticky="NEWS")
             # Aging time label
             label = tkinter.Label(new_window, text="Aging time")
-            label.grid(row=1, column=4, sticky="NEWS")
+            label.grid(row=1, column=5, sticky="NEWS")
 
             # line_2
             # frequency entry
@@ -697,13 +792,22 @@ class Dialog(CommonDialogVar):
             entry.grid(row=2, column=2, sticky="NEWS")
             # Power voltage entry
             self.atr_power_voltage = tkinter.StringVar(new_window)
-            self.atr_power_voltage.set("{0} V".format(self.excel.voltage_var))
+            self.atr_power_voltage.set("{0} V".format(self.excel.power_voltage_var))
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_power_voltage,
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
             entry.grid(row=2, column=3, sticky="NEWS")
+            # Power current entry
+            self.atr_power_current = tkinter.StringVar(new_window)
+            self.atr_power_current.set("{0} A".format(self.excel.power_current_var))
+            entry = tkinter.Entry(new_window,
+                                  textvariable=self.atr_power_current,
+                                  width=entry_width,
+                                  state="readonly",
+                                  justify="center")
+            entry.grid(row=2, column=4, sticky="NEWS")
             # Aging time entry
             self.atr_aging_time = tkinter.StringVar(new_window)
             self.atr_aging_time.set("{0} sec".format(self.excel.aging_var))
@@ -712,7 +816,7 @@ class Dialog(CommonDialogVar):
                                   width=entry_width,
                                   state="readonly",
                                   justify="center")
-            entry.grid(row=2, column=4, sticky="NEWS")
+            entry.grid(row=2, column=5, sticky="NEWS")
 
             # line_3
             # rf output label
@@ -884,13 +988,12 @@ class Dialog(CommonDialogVar):
 
     def __atr_button_clicked(self, _id):
         if _id == self.atr_start_button_id:
-            pass
+            self.atr_start_clicked()
         elif _id == self.atr_stop_button_id:
-            pass
+            self.atr_stop_clicked()
         elif _id == self.atr_display_button_id:
             self.atr_display_clicked(rf_var=self.atr_rf_var,
                                      curr_var=self.atr_current_var)
-            pass
         elif _id == self.atr_save_button_id:
             # save excel dialog open
             self.save_file_dialog()
@@ -898,36 +1001,41 @@ class Dialog(CommonDialogVar):
                 self.excel.save_all_var(save_path=self.excel_path,
                                         rf_var=self.atr_rf_var,
                                         curr_var=self.atr_current_var)
-            pass
         else:
             print("atr button id error")
+
+    def atr_start_clicked(self):
+        self.__atr_p1_data_procedure()
+        self.__atr_input_data_procedure()
+        self.__atr_p_sat_data_procedure()
+        self.__atr_overdrive_data_procedure()
+        self.__atr_check_p1_in_p_sat_ov()
+
+    def atr_stop_clicked(self):
+        pass
 
     def atr_display_clicked(self, rf_var, curr_var):
         if (len(rf_var) <= 0) and (len(curr_var) <= 0):
             pg.alert(text="No data exist",
                      title="Error",
                      button="확인")
-            return;
-        if (len(rf_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+            return
+        if (len(rf_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
             pg.alert(text="RF data error\n" + "ex) ATR not started",
                      title="Error",
                      button="확인")
-            return;
-        if (len(curr_var) != len(self.freq_var)) or (len(rf_var) <= 0):
+            return
+        if (len(curr_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
             pg.alert(text="Current data error\n" + "ex) ATR not started",
                      title="Error",
                      button="확인")
-            return;
+            return
 
     def atr_sys_opt_clicked(self):
         if self.atr_system_option:
             self.atr_system_option = False
         else:
             self.atr_system_option = True
-
-    def root_close(self):
-        self.g_root.withdraw()
-        self.g_root.quit()
 
     def load_file_dialog(self):
         dir_path = fd.askopenfilename(parent=self.g_root,
@@ -957,3 +1065,168 @@ class Dialog(CommonDialogVar):
                 self.excel_path = dir_path
             else:
                 self.save_file_dialog()
+
+    def __atr_p1_data_procedure(self):
+        self.atr_p1_state = "start"
+        self.g_root.after(500, self.__atr_p1_clock_callback)
+
+    def __atr_input_data_procedure(self):
+        pass
+
+    def __atr_p_sat_data_procedure(self):
+        pass
+
+    def __atr_overdrive_data_procedure(self):
+        pass
+
+    def __atr_check_p1_in_p_sat_ov(self):
+        pass
+
+    def __atr_p1_clock_callback(self):
+        if self.atr_p1_state == "start":
+            self.__atr_inst_call()
+            self.__atr_get_idn()  # test idn
+
+            self.atr_p1_state = "power_set"
+            self.atr_index = 0
+        elif self.atr_p1_state == "power_set":
+            self.inst_power.write_instrument(command="OUTP OFF")
+            time.sleep(1)
+            self.inst_power.write_instrument(
+                command="VOLT:LEV {0}".format(self.excel.power_voltage_var))  # power voltage set
+            time.sleep(1)
+            self.inst_power.write_instrument(
+                command="CURR:LEV {0}".format(self.excel.power_current_var))  # power current limit set
+            time.sleep(1)
+            self.inst_power.write_instrument(command="OUTP ON")
+            time.sleep(1)
+            self.atr_p1_state = "power_meter_set"
+        elif self.atr_p1_state == "power_meter_set":
+            _send_freq = self.excel.select_freq_var[self.atr_index]
+            _send_offset = self.__find_offset_in_table(send_freq=_send_freq, select="output_offset")
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset -= _send_offset
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                         self.excel.power_meter_probe_var,
+                                                         _send_offset))  # set loss
+                self.atr_p1_state = "source_set"
+        elif self.atr_p1_state == "source_set":
+            _send_freq = self.excel.select_freq_var[self.atr_index]
+            _send_offset = self.__find_offset_in_table(send_freq=_send_freq, select="input_offset")
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset -= _send_offset
+            self.atr_p1_state = "read_power"
+        elif self.atr_p1_state == "read_power":
+            self.atr_p1_state = "check_p1"
+        elif self.atr_p1_state == "check_p1":
+            self.atr_p1_state = "check_p1"
+            self.atr_p1_state = "done_p1"
+        elif self.atr_p1_state == "done_p1":
+            pass
+        else:
+            print("p1 id error")
+
+        if self.atr_p1_state != "done_p1":
+            self.g_root.after(ms=500, func=self.__atr_p1_clock_callback)
+        else:
+            print("p1 done")
+            pass
+
+    def __find_offset_in_table(self, send_freq, select):
+        searched_index = np.abs(np.array(send_freq)-self.excel.freq_var).argmin()
+        if select == "output_offset":
+            if send_freq == self.excel.freq_var[searched_index]:
+                return self.excel.output_offset_var[searched_index]
+            elif send_freq > self.excel.freq_var[searched_index]:
+                if searched_index == len(self.excel.freq_var) - 1:  # range 안에 들어오는지 체크
+                    print("frequency range over error")
+                    return
+                else:
+                    return self.excel.output_offset_var[searched_index]\
+                        + (send_freq - self.excel.freq_var[searched_index])\
+                        * (self.excel.output_offset_var[searched_index + 1] - self.excel.output_offset_var[searched_index])\
+                        / (self.excel.freq_var[searched_index + 1] - self.excel.freq_var[searched_index])
+            elif send_freq < self.excel.freq_var[searched_index]:
+                if searched_index == 0:  # range 안에 들어오는지 체크
+                    print("frequency range over error")
+                    return
+                else:
+                    return self.excel.output_offset_var[searched_index - 1]\
+                        + (send_freq - self.excel.freq_var[searched_index - 1])\
+                        * (self.excel.output_offset_var[searched_index]\
+                           - self.excel.output_offset_var[searched_index - 1])\
+                        / (self.excel.freq_var[searched_index] - self.excel.freq_var[searched_index - 1])
+            elif select == "input_offset":
+                if send_freq == self.excel.freq_var[searched_index]:
+                    return self.excel.input_offset_var[searched_index]
+                elif send_freq > self.excel.freq_var[searched_index]:
+                    if searched_index == len(self.excel.freq_var) - 1:  # range 안에 들어오는지 체크
+                        print("frequency range over error")
+                        return
+                    else:
+                        return self.excel.input_offset_var[searched_index] \
+                               + (send_freq - self.excel.freq_var[searched_index])\
+                               * (self.excel.input_offset_var[searched_index + 1]
+                                  - self.excel.input_offset_var[searched_index])\
+                               / (self.excel.freq_var[searched_index + 1]
+                                  - self.excel.freq_var[searched_index])
+                elif send_freq < self.excel.freq_var[searched_index]:
+                    if searched_index == 0:  # range 안에 들어오는지 체크
+                        print("frequency range over error")
+                        return
+                    else:
+                        return self.excel.input_offset_var[searched_index - 1]\
+                               + (send_freq - self.excel.freq_var[searched_index - 1])\
+                               * (self.excel.input_offset_var[searched_index]
+                                  - self.excel.input_offset_var[searched_index - 1])\
+                               / (self.excel.freq_var[searched_index]
+                                  - self.excel.freq_var[searched_index - 1])
+            else:
+                print("error input, output offset call")
+
+    def __atr_inst_call(self):
+        self.inst_source = Instrument.Source()
+        self.inst_power = Instrument.PowerSupply()
+        self.inst_power_meter = Instrument.PowerMeter()
+
+        # source open
+        if self.excel.source_comm_option == "GPIB":
+            self.inst_source.gpib_address = self.excel.source_com_var
+            self.inst_source.open_instrument(com_opt=self.excel.source_comm_option)
+        elif self.excel.source_comm_option == "USB":
+            pass
+        elif self.excel.source_comm_option == "SERIAL":
+            pass
+        # power supply open
+        if self.excel.power_comm_option == "GPIB":
+            self.inst_power.gpib_address = self.excel.power_com_var
+            self.inst_power.open_instrument(com_opt=self.excel.power_comm_option)
+        elif self.excel.power_comm_option == "USB":
+            pass
+        elif self.excel.power_comm_option == "SERIAL":
+            pass
+        # power meter open
+        if self.excel.power_meter_comm_option == "GPIB":
+            self.inst_power_meter.gpib_address = self.excel.power_meter_com_var
+            self.inst_power_meter.open_instrument_gpib(gpib_address=self.inst_power_meter.gpib_address)
+        elif self.excel.power_meter_comm_option == "USB":
+            pass
+        elif self.excel.power_meter_comm_option == "SERIAL":
+            pass
+
+    def __atr_get_idn(self):
+        print(self.inst_source.query_instrument("*IDN?"))
+        print(self.inst_power.query_instrument("*IDN?"))
+        print(self.inst_power_meter.query_instrument("*IDN?"))
+
+    def atr_error_state(self, text):
+        self.atr_p1_state = ""
+        print("p1 procedure error")
+        pg.alert(text=text+"\n",
+                 title="Error",
+                 button="확인")

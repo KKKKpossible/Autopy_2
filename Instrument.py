@@ -15,7 +15,11 @@ class Instrument:
         self.opened = False
         print("instrument opend")
 
-    def open_instrument(self, com_opt):
+    def open_instrument_gpib(self, gpib_address):
+        self.gpib_address = gpib_address
+        self.__open_instrument(com_opt="GPIB")
+
+    def __open_instrument(self, com_opt):
         if com_opt == "GPIB":
             address = "GPIB0::" + str(self.gpib_address) + "::INSTR"
             self.com_opt = com_opt
@@ -29,10 +33,6 @@ class Instrument:
             pass
         else:
             return
-
-    def open_instrument_gpib(self, gpib_address):
-        self.gpib_address = gpib_address
-        self.open_instrument(com_opt="GPIB")
 
     def query_instrument(self, command):
         if self.opened:
@@ -89,6 +89,8 @@ if __name__ == "__main__":
     test = PowerMeter()
     test.open_instrument_gpib(gpib_address="13")
     test.query_instrument(command="*IDN?")
+
+    # power supply test
     # test.write_instrument(command="*IDN?")
     # test.read_instrument()
     # time.sleep(2)
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     # test.write_instrument(command="CURR:LEV 4.5") # current set
     # time.sleep(2)
 
+    # sourece test
     # test = Source()
     # test.open_instrument_gpib("19")
     # test.write_instrument("FREQ 500 kHz")  # set frequency
@@ -132,6 +135,7 @@ if __name__ == "__main__":
     # test.write_instrument("POW:OFFS -10 DB")  # set offset
     # test.query_instrument("POW:OFFS?")  # read offset
 
+    # power meter test
     # pyvisa test
     # rm = pyvisa.ResourceManager()
     # for var in rm.list_resources():
@@ -150,3 +154,6 @@ if __name__ == "__main__":
     # print(inst.query("SENS2:CORR:LOSS2?"))  # get loss
     # print(inst.write("SENS2:CORR:LOSS2:STAT OFF"))  # offset off
     # print(inst.write("SENS2:CORR:LOSS2:STAT ON"))  # offset on
+    # self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")
+    # time.sleep(1)
+    # self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")

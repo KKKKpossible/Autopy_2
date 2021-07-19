@@ -1,0 +1,11 @@
+0. input -> -20, input_ref = 0, output = 30dBm, out ref = 0
+1. out_ref + 1 == input_ref ? 
+2. no -> input_ref + a
+3. if out_ref + 1 - input_ref >= 0.5: a = 1
+4. elif out_ref + 1 - input_ref >= 0.25: a = 0.25
+4. elif out_ref + 1 - input_ref >= 0.1: a = 0.1
+4. elif out_ref + 1 - input_ref > 0: a = 0.01
+4. elif out_ref + 1 - input_ref < 0: a = -0.01
+5. elif out_ref + 1 - input_ref >= -0.1: a = -0.1
+5. elif out_ref + 1 - input_ref >= -0.25: a = -0.25
+7. elif out_ref + 1 - input_ref >= -0.5: a = -1

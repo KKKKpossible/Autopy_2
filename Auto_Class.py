@@ -19,7 +19,6 @@ class ExcelVariableDeclare:
         self.w_wb = ""
         self.w_ws_list = []
         self.column_name = []
-
         self.freq_var = []
         self.input_offset_var = []
         self.output_offset_var = []
@@ -66,7 +65,7 @@ class ExcelVariableDeclare:
 
         self.source_baud_rate = ""  # default Source generate
         self.power_baud_rate = ""  # default Power supply
-        self.power_baud_rate = ""  # default Power meter
+        self.power_meter_baud_rate = ""  # default Power meter
 
 
 class CommonDialogVar:
@@ -136,13 +135,25 @@ class CommonDialogVar:
 
         self.atr_state = ""
         self.atr_p1_ref_input = ""
+        self.atr_input_input = ""
+        self.atr_p_sat_input = ""
         self.atr_index = 0
 
         self.atr_p1_var = []
+        self.atr_input_var = []
+        self.atr_input_curr_var = []
+        self.atr_p_sat_var = []
+        self.atr_p_sat_curr_var = []
+        self.atr_overdrive_var = []
+        self.atr_overdrive_curr_var = []
 
         self.inst_source = ""
         self.inst_power = ""
         self.inst_power_meter = ""
+
+        self.atr_stop = False
+
+        self.atr_seq = 0
 
     def root_close(self):
         self.g_root.withdraw()
@@ -218,79 +229,12 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
     #     else:
     #         self.l_ws_list[sheet_num] = self.l_wb[ws_name[sheet_num]]
 
-    def save_all_var(self, save_path, rf_var, curr_var):
-        # test var
-        print(self.freq_var)
-        print(self.input_offset_var)
-        print(self.output_offset_var)
-        print(self.power_voltage_var)
-        print(self.aging_var)
-        print(self.source_com_var)
-        print(self.power_com_var)
-        print(self.power_meter_com_var)
-
-        if self.save_hor is True:
-            freq_row = 1
-            rf_dbm_row = 2
-            rf_w_row = 3
-            current_row = 4
-            atr_column = 1
-
-            # test code
-            # for var in range(0, len(self.freq_var)):
-            #     rf_var.append(var)
-            #     curr_var.append(len(self.freq_var) - var)
-
-            if (len(rf_var) <= 0) and (len(curr_var) <= 0):
-                pg.alert(text="No data exist",
-                         title="Error",
-                         button="확인")
-                return
-
-            if (len(rf_var) != len(self.freq_var)) or (len(rf_var) <= 0):
-                pg.alert(text="RF data error\n" + "ex) ATR not started",
-                         title="Error",
-                         button="확인")
-                return
-
-            if (len(curr_var) != len(self.freq_var)) or (len(rf_var) <= 0):
-                pg.alert(text="Current data error\n" + "ex) ATR not started",
-                         title="Error",
-                         button="확인")
-                return
-
-            self.w_wb = Workbook()
-            self.w_ws_list.append(self.w_wb.create_sheet("ATR"))
-
-            self.w_ws_list[0] = self.w_wb.active
-            self.w_ws_list[0].cell(freq_row, atr_column, "frequency")
-            self.w_ws_list[0].cell(rf_dbm_row, atr_column, "rf output_0")
-            self.w_ws_list[0].cell(rf_w_row, atr_column, "rf output_1")
-            self.w_ws_list[0].cell(current_row, atr_column, "current")
-            atr_column += 1
-            self.w_ws_list[0].cell(freq_row, atr_column, "Hz")
-            self.w_ws_list[0].cell(rf_dbm_row, atr_column, "dBm")
-            self.w_ws_list[0].cell(rf_w_row, atr_column, "W")
-            self.w_ws_list[0].cell(current_row, atr_column, "A")
-            atr_column += 1
-
-            var_index = 0
-            while len(self.freq_var) > var_index:
-                self.w_ws_list[0].cell(freq_row, atr_column, self.freq_var[var_index])
-                self.w_ws_list[0].cell(rf_dbm_row, atr_column, rf_var[var_index])
-                self.w_ws_list[0].cell(rf_w_row, atr_column, (10 ** (rf_var[var_index] / 10) / 1000))
-                self.w_ws_list[0].cell(current_row, atr_column, curr_var[var_index])
-                var_index += 1
-                atr_column += 1
-
-            self.w_wb.save(save_path)
-        else:  # save vertical atr
-            pass
-
     # frequency, io offset, voltage get from work sheet 0
     def __get_offset_procedure_version_0(self):
         # 현재 self.l_ws_list[0] frequency, input offset, output offset, voltage 정보가 들어 있다.
         # 이것을 추출하는 작업을 하려함.
+
+        # 0. var reset
         # 1. freq config
         # 2. check input offset
         # 3. check output offset
@@ -322,6 +266,8 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         # 29. load Overdrive input dBm
         # 30. load Pout output dBm
 
+        # 0. var reset
+        self.__var_reset()
         # 1. freq config
         self.__get_unit_from_column(self.excel_freq_column)
         # 2. check input offset
@@ -382,6 +328,51 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         self.__load_var_from_column(self.excel_overdrive_input_column)
         # 30. load Pout output dBm
         self.__load_var_from_column(self.excel_pout_column)
+
+    def __var_reset(self):
+        self.freq_var = []
+        self.input_offset_var = []
+        self.output_offset_var = []
+        self.power_voltage_var = ""
+        self.power_current_var = ""
+        self.power_current_limit_var = ""
+        self.power_meter_probe_var = ""
+        self.aging_var = ""
+        self.aging_left_var = ""
+        self.aging_done_var = False
+        self.reference_done = False
+        self.source_com_var = ""
+        self.power_com_var = ""
+        self.power_meter_com_var = ""
+
+        self.multiple_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.multiple_aging = 0  # sec, min, hour
+        self.source_comm_option = ""  # GPIB, USB, Serial
+        self.power_comm_option = ""  # GPIB, USB, Serial
+        self.power_meter_comm_option = ""  # GPIB, USB, Serial
+
+        self.multiple_select_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.select_freq_var = []  # select freq var
+        self.atr_start_input_var = ""
+        self.p_sat_input_var = ""
+        self.overdrive_input_var = ""
+        self.pout_var = ""
+
+        self.freq_cell_name = ""  # default Frequency
+        self.input_cell_name = ""  # default Input offset
+        self.output_cell_name = ""  # default Output offset
+        self.power_voltage_cell_name = ""  # default Power Voltage
+        self.power_current_cell_name = ""  # default Power Voltage
+        self.power_meter_probe_cell_name = ""  # default Power Voltage
+        self.aging_cell_name = ""  # default Aging time
+        self.source_comm_cell_name = ""  # default Source generate
+        self.power_comm_cell_name = ""  # default Power supply
+        self.power_meter_comm_cell_name = ""  # default Power meter
+        self.select_freq_cell_name = ""  # default Select Freq
+        self.atr_start_input_dbm_name = ""  # default ATR start input dBm
+        self.p_sat_input_name = ""  # default P_sat input
+        self.overdrive_input_name = ""  # default Overdrive input
+        self.pout_name = ""  # default Pout
 
     def __get_unit_from_column(self, column):
         d_name_cell = column + str(self.excel_data_name_row)
@@ -794,6 +785,55 @@ class Dialog(CommonDialogVar):
         elif _id == self.atr_spectrum_id:
             pass
 
+    def reset_excel_var(self):
+        self.excel.freq_var.clear()
+        self.excel.input_offset_var.clear()
+        self.excel.output_offset_var.clear()
+        self.excel.power_voltage_var = ""
+        self.excel.power_current_var = ""
+        self.excel.power_current_limit_var = ""
+        self.excel.power_meter_probe_var = ""
+        self.excel.aging_var = ""
+        self.excel.aging_left_var = ""
+        self.excel.aging_done_var = False
+        self.excel.reference_done = False
+        self.excel.source_com_var = ""
+        self.excel.power_com_var = ""
+        self.excel.power_meter_com_var = ""
+
+        self.excel.multiple_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.excel.multiple_aging = 0  # sec, min, hour
+        self.excel.source_comm_option = ""  # GPIB, USB, Serial
+        self.excel.power_comm_option = ""  # GPIB, USB, Serial
+        self.excel.power_meter_comm_option = ""  # GPIB, USB, Serial
+
+        self.excel.multiple_select_freq = 0  # Hz, KHz, MHz, GHz, THz
+        self.excel.select_freq_var = []  # select freq var
+        self.excel.atr_start_input_var = ""
+        self.excel.p_sat_input_var = ""
+        self.excel.overdrive_input_var = ""
+        self.excel.pout_var = ""
+
+        self.excel.freq_cell_name = ""  # default Frequency
+        self.excel.input_cell_name = ""  # default Input offset
+        self.excel.output_cell_name = ""  # default Output offset
+        self.excel.power_voltage_cell_name = ""  # default Power Voltage
+        self.excel.power_current_cell_name = ""  # default Power Voltage
+        self.excel.power_meter_probe_cell_name = ""  # default Power Voltage
+        self.excel.aging_cell_name = ""  # default Aging time
+        self.excel.source_comm_cell_name = ""  # default Source generate
+        self.excel.power_comm_cell_name = ""  # default Power supply
+        self.excel.power_meter_comm_cell_name = ""  # default Power meter
+        self.excel.select_freq_cell_name = ""  # default Select Freq
+        self.excel.atr_start_input_dbm_name = ""  # default ATR start input dBm
+        self.excel.p_sat_input_name = ""  # default P_sat input
+        self.excel.overdrive_input_name = ""  # default Overdrive input
+        self.excel.pout_name = ""  # default Pout
+
+        self.excel.source_baud_rate = ""  # default Source generate
+        self.excel.power_baud_rate = ""  # default Power supply
+        self.excel.power_meter_baud_rate = ""  # default Power meter
+
     def __new_window(self, _id):
         new_window = tkinter.Toplevel(self.g_root)
         if _id == self.remote_power_id:
@@ -843,13 +883,13 @@ class Dialog(CommonDialogVar):
             # frequency entry
             self.atr_freq = tkinter.StringVar(new_window)
             if self.excel.freq_var[0] >= 1000000000000:
-                self.atr_freq.set("{0} THz".format(self.excel.freq_var[0]/1000000000000))
+                self.atr_freq.set("{0} THz".format(self.excel.freq_var[0] / 1000000000000))
             elif self.excel.freq_var[0] >= 1000000000:
-                self.atr_freq.set("{0} GHz".format(self.excel.freq_var[0]/1000000000))
+                self.atr_freq.set("{0} GHz".format(self.excel.freq_var[0] / 1000000000))
             elif self.excel.freq_var[0] >= 1000000:
-                self.atr_freq.set("{0} MHz".format(self.excel.freq_var[0]/1000000))
+                self.atr_freq.set("{0} MHz".format(self.excel.freq_var[0] / 1000000))
             elif self.excel.freq_var[0] >= 1000:
-                self.atr_freq.set("{0} KHz".format(self.excel.freq_var[0]/1000))
+                self.atr_freq.set("{0} KHz".format(self.excel.freq_var[0] / 1000))
             else:
                 self.atr_freq.set("{0} Hz".format(self.excel.freq_var[0]))
             entry = tkinter.Entry(new_window,
@@ -1005,7 +1045,7 @@ class Dialog(CommonDialogVar):
             self.atr_sys_cmd = tkinter.StringVar(new_window)
             entry = tkinter.Entry(new_window,
                                   textvariable=self.atr_sys_cmd,
-                                  width=entry_width*2,
+                                  width=entry_width * 2,
                                   justify="center")
             entry.grid(row=8, column=0, sticky="EW", columnspan=2)
             # source communication entry
@@ -1078,41 +1118,345 @@ class Dialog(CommonDialogVar):
         elif _id == self.atr_stop_button_id:
             self.atr_stop_clicked()
         elif _id == self.atr_display_button_id:
-            self.atr_display_clicked(rf_var=self.atr_rf_var,
-                                     curr_var=self.atr_current_var)
+            self.atr_display_clicked()
         elif _id == self.atr_save_button_id:
             # save excel dialog open
             self.save_file_dialog()
             if self.excel_path != "-1":
-                self.excel.save_all_var(save_path=self.excel_path,
-                                        rf_var=self.atr_rf_var,
-                                        curr_var=self.atr_current_var)
+                self.save_all_var(save_path=self.excel_path)
         else:
             print("atr button id error")
 
     def atr_start_clicked(self):
+        self.atr_seq = 0
+        self.atr_ready()  # set config, power on, rf on
+        self.excel.aging_left_var = self.excel.aging_var
+        self.aging()
+        self.atr_seq = 0
+        self.atr_index = 0
+        self.atr_start()
+        self.atr_seq = 0
+        self.atr_end()
+
+    def aging(self):
+        ret = self.is_p_sat()
+        if int(self.excel.aging_left_var) > 0:
+            if ret is not None:
+                if ret:
+                    self.excel.aging_left_var -= 1
+                    self.g_root.after(ms=1000, func=self.aging)
+                else:
+                    if int(self.excel.aging_left_var) != self.excel.aging_var:
+                        self.excel.aging_left_var = self.excel.aging_var
+                        print("aging left var reset")
+                        self.g_root.after(ms=1000, func=self.aging)
+        else:
+            print("aging left is 0 or less")
+
+    def atr_end(self):
+        # 1. reset atr var
+        self._reset_atr_var()
+        # 2. reset instrument
+        if self.atr_seq == 0:
+            _command_p = "OUTP OFF"
+            self.inst_power.write_instrument(command=_command_p)  # turn off power
+        elif self.atr_seq == 1:
+            _command_s = "OUTP:STAT OFF"
+            self.inst_source.write_instrument(command=_command_s)  # turn off rf state
+        elif self.atr_seq == 2:
+            _command_m = "CALC:REL:STAT OFF"
+            self.inst_power_meter.write_instrument(command=_command_m)  # reference off
+        else:
+            print("atr end end")
+            return
+        self.atr_seq += 1
+        self.g_root.after(ms=500, func=self.atr_end)
+
+    def atr_start(self):
+        # -1 atr index check
+        # 0. set var
+        # 1. p1 ready
+        # 2. p1 get
+        # 3. input ready
+        # 4. input get
+        # 5. p_sat ready
+        # 6. p_sat get
+        # 7. ready overdrive
+        # 8. get overdrive
+        # 9. atr index increase
+        # 10. atr_seq increase
+        # 11. groot after set
+
+        # -1 atr index check
+        if self.atr_index >= len(self.excel.select_freq_var):
+            return
+
+        # 0. set var
+        _send_freq = int(self.excel.select_freq_var[self.atr_index])
+        _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
+        _send_input = self.excel.atr_start_input_var
+        if _send_offset is not None:
+            if _send_offset < 0:
+                _send_offset = -_send_offset
+        # 1. p1 ready
+        if self.atr_seq == 0:
+            self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+        elif self.atr_seq == 1:
+            self.inst_source.write_instrument("FREQ {0} Hz".format(_send_freq))  # set frequency
+            self.inst_power_meter.write_instrument(
+                "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+        elif self.atr_seq == 2:
+            self.inst_source.write_instrument("POW:OFFS -{0} DB".format(_send_offset))  # set offset
+            self.inst_power_meter.write_instrument(
+                "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                     self.excel.power_meter_probe_var,
+                                                     _send_offset))  # set loss
+        elif self.atr_seq == 3:
+            self.inst_source.write_instrument("POW:AMPL {0} dBM".format(self.excel.atr_start_input_var))  # set dBm
+            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")  # reference off
+        elif self.atr_seq == 4:
+            self.inst_source.write_instrument("OUTP:STAT ON")  # turn off rf state
+        elif self.atr_seq == 5:
+            self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")  # reference on
+            self.atr_p1_ref_input = 0
+        # 2. p1 get
+        elif self.atr_seq == 6:
+            ret = self.is_p_1()
+            if ret is not None:
+                if ret:
+                    pass
+                else:
+                    self.atr_seq -= 2  # go to atr_seq == 5
+            else:
+                print("p sat error")
+                return
+        # 3. input ready
+        elif self.atr_seq == 7:
+            self.inst_source.write_instrument("POW:AMPL {0} dBM".format(self.excel.atr_start_input_var))  # set dBm
+            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")  # reference off
+        # 4. input get
+        elif self.atr_seq == 8:
+            ret = self.is_input()
+            if ret is not None:
+                if ret:
+                    pass
+                else:
+                    self.atr_seq -= 1
+            else:
+                print("p sat error")
+                return
+        # 5. p_sat ready
+        elif self.atr_seq == 9:
+            pass
+        # 6. p_sat get
+        elif self.atr_seq == 10:
+            ret = self.is_p_sat()
+            if ret is not None:
+                if ret:
+                    pass
+                else:
+                    self.atr_seq -= 1
+            else:
+                print("p sat error")
+                return
+        # 7. ready overdrive
+        elif self.atr_seq == 11:
+            pass
+        # 8. get overdrive
+        elif self.atr_seq == 12:
+            ret = self.is_overdrive()
+            if ret is not None:
+                if ret:
+                    pass
+                else:
+                    self.atr_seq -= 1
+            else:
+                print("p sat error")
+                return
+        # 9. atr index increase
+        elif self.atr_seq == 13:
+            self.atr_index += 1
+        else:
+            print("atr start end")
+            return
+        # 10. atr_seq increase
+        self.atr_seq += 1
+        # 11. groot after set
+        self.g_root.after(ms=500, func=self.atr_start)
+
+    def _reset_atr_var(self):
         self.excel.aging_done_var = False
-        self.__atr_p1_data_procedure()
+        self.atr_state = "start"
+        self.atr_index = 0
+        self.atr_p1_var.clear()
+        self.atr_input_var.clear()
+        self.atr_input_curr_var.clear()
+        self.atr_p_sat_var.clear()
+        self.atr_p_sat_curr_var.clear()
+        self.atr_overdrive_var.clear()
+        self.atr_overdrive_curr_var.clear()
+        self.excel.aging_left_var = ""
+
+    def atr_ready(self):
+        # 1. set instrument instance
+        # 2. reset atr var
+        # 3. reset instrument
+        # 4. set instrument
+
+        # 1. set instrument instance
+        self.__atr_inst_call()
+        # 2. reset atr var
+        self._reset_atr_var()
+        # 4. set instrument
+        # set var
+        _send_freq = int(self.excel.select_freq_var[self.atr_index])
+        _send_offset_i = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
+        _send_offset_o = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
+        _send_input = self.excel.atr_start_input_var
+        if _send_offset_i is not None:
+            if _send_offset_i < 0:
+                _send_offset_i = -_send_offset_i
+        if _send_offset_o is not None:
+            if _send_offset_o < 0:
+                _send_offset_o = -_send_offset_o
+        # set instrument
+        self.atr_seq += 1
+        if self.atr_seq == 1:  # set config_0
+            _command_p = "OUTP OFF"
+            self.inst_power.write_instrument(command=_command_p)  # turn off power
+            _command_s = "OUTP:STAT OFF"
+            self.inst_source.write_instrument(command=_command_s)  # turn off rf state
+            _command_m = "CALC:REL:STAT OFF"
+            self.inst_power_meter.write_instrument(command=_command_m)  # reference off
+        elif self.atr_seq == 2:  # set config_1
+            _command_p = "VOLT:LEV {0}".format(self.excel.power_voltage_var)
+            self.inst_power.write_instrument(command=_command_p)  # power voltage set
+            _command_s = "FREQ {0} Hz".format(_send_freq)
+            self.inst_source.write_instrument(command=_command_s)  # set frequency
+            _command_m = "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq)
+            self.inst_source.write_instrument(command=_command_m)  # set frequency
+        elif self.atr_seq == 3:  # set config_2
+            _command_p = "CURR:LEV {0}".format(self.excel.power_current_limit_var)
+            self.inst_power.write_instrument(command=_command_p)  # power current limit set
+            _command_s = "POW:OFFS -{0} DB".format(_send_offset_i)
+            self.inst_source.write_instrument(command=_command_s)  # set offset
+            _command_m = "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                              self.excel.power_meter_probe_var,
+                                                              _send_offset_o)
+            self.inst_power_meter.write_instrument(_command_m)  # set loss
+        elif self.atr_seq == 4:  # set config_3
+            _command_s = "POW:AMPL {0} dBM".format(_send_input)
+            self.inst_source.write_instrument(command=_command_s)  # set dBm
+        elif self.atr_seq == 5:  # release_0
+            _command_p = "OUTP ON"
+            self.inst_power.write_instrument(command=_command_p)  # turn on power
+        elif self.atr_seq == 6:  # release_1
+            _command_s = "OUTP:STAT ON"
+            self.inst_source.write_instrument(command=_command_s)  # turn on rf state
+        elif self.atr_seq == 7:  # read rf power
+            ret = self.is_p_sat()
+            if ret is not None:
+                if ret:
+                    pass
+                else:
+                    self.atr_seq -= 1
+            else:
+                print("p sat error")
+                return
+        else:
+            return
+        self.g_root.after(ms=0.5, func=self.atr_ready)
+
+    def is_input(self):
+        return True
+
+    def is_p_1(self):
+        _command_m = "FETC1"
+        compare_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+        Dialog.thread_sleep(sec=0.5)
+        read_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+        Dialog.thread_sleep(sec=0.5)
+        while abs(compare_power - read_power) < 1e-3:
+            self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")  # reference on
+            Dialog.thread_sleep(sec=0.5)
+            compare_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            read_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+        adder = Dialog.get_p1_adder(_out_ref=read_power, _input_ref=self.atr_p1_ref_input)
+        send_var = self.excel.atr_start_input_var + self.atr_p1_ref_input
+        if adder is not None:
+            self.atr_p1_ref_input += adder
+            send_var = self.excel.atr_start_input_var + self.atr_p1_ref_input
+            if send_var <= self.excel.p_sat_input_var:
+                self.inst_source.write_instrument("POW:AMPL {0} dBM".format(send_var))  # new input set
+                Dialog.thread_sleep(sec=0.5)
+                return False
+            else:
+                print("p1 input set over range")
+                self.atr_state = "error"
+        else:
+            self.atr_p1_var.append(send_var)
+            self.atr_state = "done_p1"
+            return True
+
+    def is_overdrive(self):
+        return True
+
+    def is_p_sat(self):
+        _command_m = "FETC1"
+        compare_power_0 = round(float(self.inst_power_meter.query_instrument(command=_command_m)), 2)
+        Dialog.thread_sleep(sec=0.5)
+        compare_power_1 = round(float(self.inst_power_meter.query_instrument(command=_command_m)), 2)
+        Dialog.thread_sleep(sec=0.5)
+        self.excel.aging_left_var -= 1
+
+        while abs(compare_power_0 - compare_power_1) < 1e-3:
+            compare_power_0 = round(float(self.inst_power_meter.query_instrument(command=_command_m)), 2)
+            Dialog.thread_sleep(sec=0.5)
+            compare_power_1 = round(float(self.inst_power_meter.query_instrument(command=_command_m)), 2)
+            Dialog.thread_sleep(sec=0.5)
+            self.excel.aging_left_var -= 1
+
+        adder = self.get_input_adder(_output_now=compare_power_0, _output_goal=self.excel.pout_var)
+        if adder is not None:
+            if adder != 0:
+                self.atr_input_input += adder
+                if self.atr_input_input <= self.excel.p_sat_input_var:
+                    _command_s = "POW:AMPL {0} dBM".format(self.atr_input_input)
+                    self.inst_source.write_instrument(_command_s)  # new input set
+                    Dialog.thread_sleep(sec=0.5)
+                    return False
+                else:
+                    print("p input set over range")
+                    return
+            else:
+                return True
+
+    @staticmethod
+    def thread_sleep(sec=0.0):
+        time.sleep(sec)
 
     def atr_stop_clicked(self):
-        pass
+        self.atr_stop = True
 
-    def atr_display_clicked(self, rf_var, curr_var):
-        if (len(rf_var) <= 0) and (len(curr_var) <= 0):
-            pg.alert(text="No data exist",
-                     title="Error",
-                     button="확인")
-            return
-        if (len(rf_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
-            pg.alert(text="RF data error\n" + "ex) ATR not started",
-                     title="Error",
-                     button="확인")
-            return
-        if (len(curr_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
-            pg.alert(text="Current data error\n" + "ex) ATR not started",
-                     title="Error",
-                     button="확인")
-            return
+    def atr_display_clicked(self):
+        pass
+        # if (len(rf_var) <= 0) and (len(curr_var) <= 0):
+        #     pg.alert(text="No data exist",
+        #              title="Error",
+        #              button="확인")
+        #     return
+        # if (len(rf_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
+        #     pg.alert(text="RF data error\n" + "ex) ATR not started",
+        #              title="Error",
+        #              button="확인")
+        #     return
+        # if (len(curr_var) != len(self.excel.freq_var)) or (len(rf_var) <= 0):
+        #     pg.alert(text="Current data error\n" + "ex) ATR not started",
+        #              title="Error",
+        #              button="확인")
+        #     return
 
     def atr_sys_opt_clicked(self):
         if self.atr_system_option:
@@ -1151,19 +1495,19 @@ class Dialog(CommonDialogVar):
 
     def __atr_p1_data_procedure(self):
         self.atr_state = "start"
-        self.g_root.after(500, self.__atr_p1_clock_callback)
+        self.g_root.after(ms=500, func=self.__atr_p1_clock_callback)
 
     def __atr_input_data_procedure(self):
         self.atr_state = "start"
-        self.g_root.after(500, self.__atr_input_clock_callback)
+        self.g_root.after(ms=500, func=self.__atr_input_clock_callback)
 
     def __atr_p_sat_data_procedure(self):
         self.atr_state = "start"
-        self.g_root.after(500, self.__atr_p_sat_clock_callback)
+        self.g_root.after(ms=500, func=self.__atr_p_sat_clock_callback)
 
     def __atr_overdrive_data_procedure(self):
         self.atr_state = "start"
-        self.g_root.after(500, self.__atr_overdrive_clock_callback)
+        self.g_root.after(ms=500, func=self.__atr_overdrive_clock_callback)
 
     def __atr_check_p1_in_p_sat_ov(self):
         pass
@@ -1171,180 +1515,677 @@ class Dialog(CommonDialogVar):
     def __atr_p1_clock_callback(self):
         # 1. start
         # 2. power set
-        # 3. power meter set
-        # 4. source set
+        # 3. source set
+        # 4. power meter set
         # 5. aging set
-        # 6. p1 check -> keep until p1 be done
-        # 7. p1 done
+        # 6. reference set
+        # 7. p1 check -> keep until p1 be done
+        # 8. p1 done
+        # 9. g_root after set
 
         # 1. start
         if self.atr_state == "start":
             self.__atr_inst_call()
             # self.__atr_get_idn()  # test idn
             self.atr_state = "power_set"
+            self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+            Dialog.thread_sleep(sec=0.5)
             self.atr_index = 0
-            self.atr_p1_ref_input = 0
             self.atr_p1_var.clear()
+            self.excel.aging_done_var = False
 
         # 2. power set
         elif self.atr_state == "power_set":
             self.inst_power.write_instrument(command="OUTP OFF")
-            time.sleep(1)
+            Dialog.thread_sleep(sec=0.5)
             self.inst_power.write_instrument(
                 command="VOLT:LEV {0}".format(self.excel.power_voltage_var))  # power voltage set
-            time.sleep(1)
+            Dialog.thread_sleep(sec=0.5)
             self.inst_power.write_instrument(
                 command="CURR:LEV {0}".format(self.excel.power_current_limit_var))  # power current limit set
-            time.sleep(1)
+            Dialog.thread_sleep(sec=0.5)
             self.inst_power.write_instrument(command="OUTP ON")
-            time.sleep(1)
-            self.atr_state = "power_meter_set"
-        # 3. power meter set
-        elif self.atr_state == "power_meter_set":
-            _send_freq = self.excel.select_freq_var[self.atr_index]
-            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
-            if _send_offset is not None:
-                if _send_offset < 0:
-                    _send_offset -= _send_offset
-                self.inst_power_meter.write_instrument(
-                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
-                self.inst_power_meter.write_instrument(
-                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
-                                                         self.excel.power_meter_probe_var,
-                                                         _send_offset))  # set loss
-                self.atr_state = "source_set"
-            else:
-                self.atr_state = "error"  # error 발생
-                return
-        # 4. source set
+            Dialog.thread_sleep(sec=0.5)
+            self.atr_state = "source_set"
+        # 3. source set
         elif self.atr_state == "source_set":
-            _send_freq = self.excel.select_freq_var[self.atr_index]
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
             _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
             _send_input = self.excel.atr_start_input_var
             if _send_offset is not None:
                 if _send_offset < 0:
-                    _send_offset -= _send_offset
+                    _send_offset = -_send_offset
                 self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
-                time.sleep(1)
+                Dialog.thread_sleep(sec=0.5)
                 self.inst_source.write_instrument("FREQ {0} Hz".format(_send_freq))  # set frequency
-                time.sleep(1)
+                Dialog.thread_sleep(sec=0.5)
                 self.inst_source.write_instrument("POW:OFFS -{0} DB".format(_send_offset))  # set offset
-                time.sleep(1)
+                Dialog.thread_sleep(sec=0.5)
                 self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))  # set dBm
-                time.sleep(1)
+                Dialog.thread_sleep(sec=0.5)
                 self.inst_source.write_instrument("OUTP:STAT ON")  # turn off rf state
-                time.sleep(1)
-            self.atr_state = "aging_set"
+                Dialog.thread_sleep(sec=0.5)
+                self.atr_state = "power_meter_set"
+        # 4. power meter set
+        elif self.atr_state == "power_meter_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                         self.excel.power_meter_probe_var,
+                                                         _send_offset))  # set loss
+                Dialog.thread_sleep(sec=0.5)
+                if self.excel.aging_done_var:
+                    self.atr_state = "reference_set"
+                else:
+                    self.atr_state = "aging_set"
+            else:
+                self.atr_state = "error"  # error 발생
         # 5. aging set
         elif self.atr_state == "aging_set":
             if self.excel.aging_done_var:
                 self.atr_state = "reference_set"
+        # 6. reference set
         elif self.atr_state == "reference_set":
-            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")
-            time.sleep(1)
-            self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")
-            time.sleep(1)
-            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")
-            print("reference return error")
+            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")  # reference off
+            Dialog.thread_sleep(sec=0.5)
+            self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")  # reference on
+            Dialog.thread_sleep(sec=0.5)
+            self.atr_p1_ref_input = 0
             self.atr_state = "check_p1"
-        # 6. p1 check -> keep until p1 be done
+        # 7. p1 check -> keep until p1 be done
         elif self.atr_state == "check_p1":
-            read_power = self.inst_power_meter.query_instrument(
-                "FETC{0}?".format(self.excel.power_meter_probe_var))
-            read_power = round(float(read_power), 2)
-            time.sleep(1)
-            adder = Dialog.get_adder(_out_ref=read_power, _input_ref=self.atr_p1_ref_input)
+            compare_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            read_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            while abs(read_power - compare_power) > 1e-9:
+                self.inst_power_meter.write_instrument(command="CALC:REL:AUTO ONCE")  # reference on
+                Dialog.thread_sleep(sec=0.5)
+                compare_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+                read_power = round(float(self.inst_power_meter.query_instrument("FETC1:REL?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+            adder = Dialog.get_p1_adder(_out_ref=read_power, _input_ref=self.atr_p1_ref_input)
+            send_var = self.excel.atr_start_input_var + self.atr_p1_ref_input
             if adder != 0:
                 self.atr_p1_ref_input += adder
-                self.inst_source.write_instrument("POW:AMPL {0} dBM".format(
-                    self.excel.atr_start_input_var + self.atr_p1_ref_input))  # new input set
-                time.sleep(1)
-            else:
-                self.atr_state = "done_p1"
-        # 7. p1 done
-        elif self.atr_state == "done_p1":
-            self.inst_power_meter.write_instrument(command="OUTP:ROSC:STAT 0")
-            time.sleep(1)
-            read_power = self.inst_power_meter.query_instrument(
-                "FETC{0}?".format(self.excel.power_meter_probe_var))
-            time.sleep(1)
-            self.atr_p1_var.append(read_power)
-            self.atr_index += 1
-            if self.atr_index == len(self.excel.freq_var):
-                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
-                time.sleep(1)
-                pass
-            else:
-                self.atr_state = "reference_set"
-        else:
-            print("p1 id error")
-
-        # time callback ms set
-        if self.atr_state != "done_p1":
-            if self.atr_state == "aging_set":
-                if self.excel.aging_done_var:
-                    pass
+                send_var = self.excel.atr_start_input_var + self.atr_p1_ref_input
+                if send_var <= self.excel.p_sat_input_var:
+                    self.inst_source.write_instrument("POW:AMPL {0} dBM".format(send_var))  # new input set
+                    Dialog.thread_sleep(sec=0.5)
                 else:
-                    self.g_root.after(ms=int(self.excel.aging_var * 1000), func=self.__atr_p1_clock_callback)
-                    self.excel.aging_done_var = True
+                    print("p1 input set over range")
+                    self.atr_state = "error"
             else:
-                self.g_root.after(ms=500, func=self.__atr_p1_clock_callback)
-        elif self.atr_state == "error":
-            pg.alert(text="atr error 발생\n",
-                     title="Error",
-                     button="확인")
-        elif self.atr_state == "done_p1":
-            print("p1 done")
-            self.__atr_input_data_procedure()
-            pass
+                self.atr_p1_var.append(send_var)
+                self.atr_state = "done_p1"
+
+        # 8. p1 done
+        if self.atr_state == "done_p1":
+            self.atr_index += 1
+            self.inst_power_meter.write_instrument(command="CALC:REL:STAT OFF")  # reference off
+            Dialog.thread_sleep(sec=0.5)
+            if self.atr_index == len(self.excel.select_freq_var):  # end p1
+                pass
+            else:  # go to next freq
+                self.atr_state = "source_set"
+
+        if self.atr_stop:
+            self.atr_stop = False
+        else:
+            # 9. g_root after set
+            if self.atr_state != "done_p1":
+                if self.atr_state == "aging_set":
+                    if self.excel.aging_done_var:
+                        pass
+                    else:
+                        self.g_root.after(ms=int(self.excel.aging_var * 1000), func=self.__atr_p1_clock_callback)
+                        self.excel.aging_done_var = True
+                else:
+                    self.g_root.after(ms=500, func=self.__atr_p1_clock_callback)
+            elif self.atr_state == "error":
+                pg.alert(text="atr error 발생\n",
+                         title="Error",
+                         button="확인")
+            elif self.atr_state == "done_p1":
+                print("p1 done")
+                self.__atr_input_data_procedure()
 
     def __atr_input_clock_callback(self):
-        if self.atr_state == "done_p1":
-            pass
-        elif self.atr_state == "input_done":
-            self.__atr_p_sat_data_procedure()
+        # 1. input var set default
+        # 2. source set
+        # 3. power meter set
+        # 4. check input
+        # 5. input done
+        # 6. g_root after set
+
+        # 1. input var set default
+        if self.atr_state == "start":
+            self.atr_state = "source_set"
+            self.atr_index = 0
+            self.atr_input_var.clear()
+            self.atr_input_curr_var.clear()
+        # 2. source set
+        elif self.atr_state == "source_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
+            _send_input = self.excel.atr_start_input_var
+            self.atr_input_input = self.excel.atr_start_input_var
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("FREQ {0} Hz".format(_send_freq))  # set frequency
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:OFFS -{0} DB".format(_send_offset))  # set offset
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))  # set dBm
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("OUTP:STAT ON")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                self.atr_state = "power_meter_set"
+            else:
+                self.atr_state = "error"
+        # 3. power meter set
+        elif self.atr_state == "power_meter_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                         self.excel.power_meter_probe_var,
+                                                         _send_offset))  # set loss
+                Dialog.thread_sleep(sec=0.5)
+                self.atr_state = "check_input"
+            else:
+                self.atr_state = "error"  # error 발생
+        # 4. check input
+        elif self.atr_state == "check_input":
+            compare_power = round(float(self.inst_power_meter.query_instrument("FETC1")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            read_power = round(float(self.inst_power_meter.query_instrument("FETC1")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            while abs(read_power - compare_power) > 1e-9:
+                compare_power = round(float(self.inst_power_meter.query_instrument("FETC1")), 2)
+                Dialog.thread_sleep(sec=0.5)
+                read_power = round(float(self.inst_power_meter.query_instrument("FETC1")), 2)
+                Dialog.thread_sleep(sec=0.5)
+            adder = self.get_input_adder(_output_now=read_power, _output_goal=self.excel.pout_var)
+            if adder is not None:
+                if adder != 0:
+                    self.atr_input_input += adder
+                    if self.atr_input_input <= self.excel.p_sat_input_var:
+                        self.inst_source.write_instrument(
+                            "POW:AMPL {0} dBM".format(self.atr_input_input))  # new input set
+                        Dialog.thread_sleep(sec=0.5)
+                    else:
+                        print("p input set over range")
+                        self.atr_state = "error"
+                else:
+                    self.atr_input_var.append(read_power)
+                    read_current = self.inst_power.query_instrument("MEAS:CURR?")  # load curr from instrument
+                    Dialog.thread_sleep(sec=0.5)
+                    self.atr_input_curr_var.append(read_current)  # get current
+                    self.atr_state = "input_done"
+            else:
+                self.atr_state = "error"
+
+        # 5. input done
+        if self.atr_state == "input_done":
+            self.atr_index += 1
+            self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+            Dialog.thread_sleep(sec=0.5)
+            if self.atr_index == len(self.excel.select_freq_var):  # end input
+                pass
+            else:  # go to next freq
+                self.atr_state = "source_set"
+
+        if self.atr_stop:
+            self.atr_stop = False
+        else:
+            # 6. g_root after set
+            if self.atr_state != "input_done":
+                self.g_root.after(ms=500, func=self.__atr_input_clock_callback)
+            elif self.atr_state == "error":
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                pg.alert(text="atr error 발생\n",
+                         title="Error",
+                         button="확인")
+            elif self.atr_state == "input_done":
+                print("input done")
+                self.__atr_p_sat_data_procedure()
 
     def __atr_p_sat_clock_callback(self):
-        if self.atr_state == "input_done":
-            pass
-        elif self.atr_state == "p_sat_done":
-            self.__atr_overdrive_data_procedure()
+        # 1. p_sat var set default
+        # 2. source set
+        # 3. power meter set
+        # 4. check p_sat
+        # 5. p_sat done
+        # 6. g_root after set
+
+        # 1. p_sat var set default
+        if self.atr_state == "start":
+            self.atr_state = "source_set"
+            self.atr_index = 0
+            self.atr_p_sat_var.clear()
+            self.atr_p_sat_curr_var.clear()
+        # 2. source set
+        elif self.atr_state == "source_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
+            _send_input = self.excel.atr_start_input_var
+            self.atr_p_sat_input = self.excel.atr_start_input_var
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("FREQ {0} Hz".format(_send_freq))  # set frequency
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:OFFS -{0} DB".format(_send_offset))  # set offset
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))  # set dBm
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("OUTP:STAT ON")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                for var in range(self.excel.atr_start_input_var, self.excel.p_sat_input_var, 3):  # set dBm
+                    _send_input = var
+                    if _send_input <= self.excel.p_sat_input_var:
+                        self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))
+                        Dialog.thread_sleep(sec=0.5)
+                    else:
+                        print("p_sat input over range")
+                        self.atr_state = "error"
+                        break
+                for var in range(_send_input, self.excel.p_sat_input_var + 1):
+                    _send_input = var
+                    if _send_input <= self.excel.p_sat_input_var:
+                        self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))
+                        Dialog.thread_sleep(sec=0.5)
+                        self.atr_state = "power_meter_set"
+                    else:
+                        print("p_sat input over range")
+                        self.atr_state = "error"
+                        break
+            else:
+                self.atr_state = "error"
+        # 3. power meter set
+        elif self.atr_state == "power_meter_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                         self.excel.power_meter_probe_var,
+                                                         _send_offset))  # set loss
+                Dialog.thread_sleep(sec=0.5)
+                self.atr_state = "check_p_sat"
+            else:
+                self.atr_state = "error"  # error 발생
+        # 4. check p_sat
+        elif self.atr_state == "check_p_sat":
+            compare_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            read_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            while abs(read_power - compare_power) > 1e-9:
+                compare_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+                read_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+            self.atr_p_sat_var.append(read_power)
+            read_current = self.inst_power.query_instrument("MEAS:CURR?")  # load curr from instrument
+            Dialog.thread_sleep(sec=0.5)
+            self.atr_p_sat_curr_var.append(read_current)  # get current
+            self.atr_state = "p_sat_done"
+
+        # 5. p_sat done
+        if self.atr_state == "p_sat_done":
+            self.atr_index += 1
+            self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+            Dialog.thread_sleep(sec=0.5)
+            if self.atr_index == len(self.excel.select_freq_var):  # end p1
+                pass
+            else:  # go to next freq
+                self.atr_state = "source_set"
+
+        if self.atr_stop:
+            self.atr_stop = False
+        else:
+            # 6. g_root after set
+            if self.atr_state != "p_sat_done":
+                self.g_root.after(ms=500, func=self.__atr_p_sat_clock_callback)
+            elif self.atr_state == "error":
+                pg.alert(text="atr error 발생\n",
+                         title="Error",
+                         button="확인")
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+            elif self.atr_state == "p_sat_done":
+                self.__atr_overdrive_data_procedure()
 
     def __atr_overdrive_clock_callback(self):
-        if self.atr_state == "p_sat_done":
-            self.__atr_check_p1_in_p_sat_ov()
+        # 1. overdrive var set default
+        # 2. source set
+        # 3. power meter set
+        # 4. check overdrive
+        # 5. overdrive done
+
+        # 1. overdrive var set default
+        if self.atr_state == "start":
+            self.atr_state = "source_set"
+            self.atr_index = 0
+            self.atr_overdrive_var.clear()
+            self.atr_overdrive_curr_var.clear()
+        # 2. source set
+        elif self.atr_state == "source_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="input_offset"))
+            _send_input = self.excel.atr_start_input_var
+            self.atr_p_sat_input = self.excel.atr_start_input_var
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("FREQ {0} Hz".format(_send_freq))  # set frequency
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:OFFS -{0} DB".format(_send_offset))  # set offset
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))  # set dBm
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_source.write_instrument("OUTP:STAT ON")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                for var in range(self.excel.atr_start_input_var, self.excel.overdrive_input_var, 3):  # set dBm
+                    _send_input = var
+                    if _send_input <= self.excel.overdrive_input_var:
+                        self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))
+                        Dialog.thread_sleep(sec=0.5)
+                    else:
+                        print("over drive input over range")
+                        self.atr_state = "error"
+                        break
+                for var in range(_send_input, self.excel.overdrive_input_var + 1):
+                    _send_input = var
+                    if _send_input <= self.excel.overdrive_input_var:
+                        self.inst_source.write_instrument("POW:AMPL {0} dBM".format(_send_input))
+                        Dialog.thread_sleep(sec=0.5)
+                        self.atr_state = "power_meter_set"
+                    else:
+                        print("over drive input over range")
+                        self.atr_state = "error"
+                        break
+            else:
+                self.atr_state = "error"
+        # 3. power meter set
+        elif self.atr_state == "power_meter_set":
+            _send_freq = int(self.excel.select_freq_var[self.atr_index])
+            _send_offset = float(self.__find_offset_in_table(send_freq=_send_freq, select="output_offset"))
+            if _send_offset is not None:
+                if _send_offset < 0:
+                    _send_offset = -_send_offset
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:FREQ {1}HZ".format(self.excel.power_meter_probe_var, _send_freq))
+                Dialog.thread_sleep(sec=0.5)
+                self.inst_power_meter.write_instrument(
+                    "SENS{0}:CORR:LOSS{1} -{2}DB".format(self.excel.power_meter_probe_var,
+                                                         self.excel.power_meter_probe_var,
+                                                         _send_offset))  # set loss
+                Dialog.thread_sleep(sec=0.5)
+                self.atr_state = "check_overdrive"
+            else:
+                self.atr_state = "error"  # error 발생
+        # 4. check overdrive
+        elif self.atr_state == "check_overdrive":
+            compare_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            read_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+            Dialog.thread_sleep(sec=0.5)
+            while abs(read_power - compare_power) > 1e-9:
+                compare_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+                read_power = round(float(self.inst_power_meter.query_instrument("FETC1?")), 2)
+                Dialog.thread_sleep(sec=0.5)
+            self.atr_overdrive_var.append(read_power)
+            read_current = self.inst_power.query_instrument("MEAS:CURR?")  # load curr from instrument
+            Dialog.thread_sleep(sec=0.5)
+            self.atr_overdrive_curr_var.append(read_current)  # get current
+            self.atr_state = "overdrive_done"
+
+        # 5. overdrive done
+        if self.atr_state == "overdrive_done":
+            self.atr_index += 1
+            self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+            Dialog.thread_sleep(sec=0.5)
+            self.inst_power.write_instrument(command="OUTP OFF")  # turn off power
+            Dialog.thread_sleep(sec=0.5)
+            if self.atr_index == len(self.excel.select_freq_var):  # end p1
+                pass
+            else:  # go to next freq
+                self.atr_state = "source_set"
+
+        if self.atr_stop:
+            self.atr_stop = False
+        else:
+            # 6. g_root after set
+            if self.atr_state != "overdrive_done":
+                self.g_root.after(ms=500, func=self.__atr_overdrive_clock_callback())
+            elif self.atr_state == "error":
+                self.inst_source.write_instrument("OUTP:STAT OFF")  # turn off rf state
+                Dialog.thread_sleep(sec=0.5)
+                pg.alert(text="atr error 발생\n",
+                         title="Error",
+                         button="확인")
+            elif self.atr_state == "overdrive_done":
+                self.__atr_check_p1_in_p_sat_ov()
+
+    def save_all_var(self, save_path):
+        # test var
+        print(self.excel.freq_var)
+        print(self.excel.input_offset_var)
+        print(self.excel.output_offset_var)
+        print(self.excel.power_voltage_var)
+        print(self.excel.aging_var)
+        print(self.excel.source_com_var)
+        print(self.excel.power_com_var)
+        print(self.excel.power_meter_com_var)
+        print(self.atr_p1_var)
+        print(self.atr_input_var)
+        print(self.atr_input_curr_var)
+        print(self.atr_p_sat_var)
+        print(self.atr_p_sat_curr_var)
+        print(self.atr_overdrive_var)
+        print(self.atr_overdrive_curr_var)
+
+        # test
+        # self.atr_p1_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 41]
+        # self.atr_input_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 44]
+        # self.atr_input_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 47]
+        # self.atr_p_sat_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 50]
+        # self.atr_p_sat_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 53]
+        # self.atr_overdrive_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 56]
+        # self.atr_overdrive_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 59]
+
+        if self.excel.save_hor is True:
+            freq_row = 1
+            p1_row = 2
+            input_row = 3
+            input_watt_row = 4
+            input_current_row = 5
+            p_sat_row = 6
+            p_sat_watt_row = 7
+            p_sat_current_row = 8
+            overdrive_row = 9
+            overdrive_watt_row = 10
+            overdrive_current_row = 11
+
+            name_column = "A"
+            unit_column = "B"
+            data_start_column = "C"
+
+            names = ["frequency", "p1", "input dBm", "input watt", "input current",
+                     "p_sat dBm", "p_sat watt", "p_sat current", "overdrive dBm", "overdrive watt",
+                     "overdrive current"]
+            units = ["Hz", "dBm", "dBm", "W", "A",
+                     "dBm", "W", "A", "dBm", "W",
+                     "A"]
+
+            self.excel.w_wb = Workbook()
+            self.excel.w_ws_list.append(self.excel.w_wb.create_sheet("ATR"))
+
+            self.excel.w_ws_list[0] = self.excel.w_wb.active
+
+            index_start = freq_row
+            for var in names:
+                self.excel.w_ws_list[0].cell(index_start, ord(name_column) + 1 - ord("A"), var)
+                index_start += 1
+            self.excel.w_ws_list[0].column_dimensions[name_column].width = 15  # column set
+
+            index_start = freq_row
+            for var in units:
+                self.excel.w_ws_list[0].cell(index_start, ord(unit_column) + 1 - ord("A"), var)
+                index_start += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.excel.freq_var:
+                self.excel.w_ws_list[0].cell(freq_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_p1_var:
+                self.excel.w_ws_list[0].cell(p1_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_input_var:
+                self.excel.w_ws_list[0].cell(input_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_input_var:
+                var = (10 ** (var / 10)) / 1000
+                self.excel.w_ws_list[0].cell(input_watt_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_input_curr_var:
+                self.excel.w_ws_list[0].cell(input_current_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_p_sat_var:
+                self.excel.w_ws_list[0].cell(p_sat_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_p_sat_var:
+                var = (10 ** (var / 10)) / 1000
+                self.excel.w_ws_list[0].cell(p_sat_watt_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_p_sat_curr_var:
+                self.excel.w_ws_list[0].cell(p_sat_current_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_overdrive_var:
+                self.excel.w_ws_list[0].cell(overdrive_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_overdrive_var:
+                var = (10 ** (var / 10)) / 1000
+                self.excel.w_ws_list[0].cell(overdrive_watt_row, __column, var)
+                __column += 1
+
+            __column = ord(data_start_column) + 1 - ord("A")
+            for var in self.atr_overdrive_curr_var:
+                self.excel.w_ws_list[0].cell(overdrive_current_row, __column, var)
+                __column += 1
+
+            self.excel.w_wb.save(save_path)
+        else:  # save vertical atr
             pass
 
     @staticmethod
-    def get_adder(_out_ref, _input_ref):
+    def get_p1_adder(_out_ref, _input_ref):
         _key_adder = 0
         compare = _out_ref + 1 - _input_ref
-        if compare >= 0.5:      # over 0.5      # 5
-            _key_adder = 1      # 1
-        elif compare >= 0.25:   # 0.25 ~ 0.5    # 4
-            _key_adder = 0.25   # 0.25
-        elif compare >= 0.1:    # 0.1 ~ 0.25    # 3
-            _key_adder = 0.1    # 0.1
-        elif compare >= 0.01:   # 0.01 ~ 0.1    # 2
-            _key_adder = 0.05   # 0.05
-        elif compare > 0:       # 0 ~ 0.01
-            _key_adder = 0.01   # 0.01          # 1
-        elif compare == 0:      # 0             # 0
-            _key_adder = 0      # 0
+        if compare >= 0.5:  # over 0.5      # 5
+            _key_adder = 1  # 1
+        elif compare >= 0.25:  # 0.25 ~ 0.5    # 4
+            _key_adder = 0.2  # 0.2
+        elif compare >= 0.1:  # 0.1 ~ 0.25    # 3
+            _key_adder = 0.1  # 0.1
+        elif compare >= 0.01:  # 0.01 ~ 0.1    # 2
+            _key_adder = 0.1  # 0.1
+        elif compare > 0:  # 0 ~ 0.01
+            _key_adder = 0  # 0          # 1
+        elif compare == 0:  # 0             # 0
+            _key_adder = 0  # 0
         elif compare >= -0.01:  # -0.01 ~ 0     # 1
-            _key_adder = -0.01  # -0.01
-        elif compare >= -0.1:   # -0.1 ~ -0.01  # 2
-            _key_adder = -0.05  # -0.05
-        elif compare >= -0.25:  # -0.25 ~ -0.1  #3
+            _key_adder = -0  # 0
+        elif compare >= -0.1:  # -0.1 ~ -0.01  # 2
+            _key_adder = -0.1  # -0.1
+        elif compare >= -0.25:  # -0.25 ~ -0.1  # 3
             _key_adder = -0.1
-        elif compare >= -0.5:   # -0.5 ~ -0.25  # 4
-            _key_adder = -0.25
-        else:                   # ~ -0.5        # 5
+        elif compare >= -0.5:  # -0.5 ~ -0.25  # 4
+            _key_adder = -0.2
+        else:  # ~ -0.5        # 5
             _key_adder = -1
         return _key_adder
 
+    def get_input_adder(self, _output_now, _output_goal):
+        if self.atr_input_input < 0:
+            if _output_now - _output_goal > 5:  # 5 ~
+                adder = 1
+            elif _output_now - _output_goal > 1:  # 1 ~ 5
+                adder = 0.5
+            elif _output_now - _output_goal > 0.5:  # 0.5 ~ 1
+                adder = 0.2
+            elif _output_now - _output_goal > 0.25:  # 0.25 ~ 0.5
+                adder = 0.1
+            elif _output_now - _output_goal > 0:  # 0 ~ 0.25
+                adder = 0
+            elif _output_now - _output_goal == 0:  # 0
+                adder = 0
+            elif _output_now - _output_goal > -0.25:  # -0.25 ~ 0
+                adder = 0
+            elif _output_now - _output_goal > -0.5:  # -0.5 ~ -0.25
+                adder = -0.1
+            elif _output_now - _output_goal > -1:  # -1 ~ -0.5
+                adder = -0.2
+            elif _output_now - _output_goal > -5:  # -5 ~ -1
+                adder = -0.5
+            else:  # ~ -5
+                adder = -1
+            return adder
+        else:
+            print("input over pass range")
+            return
+
     def __find_offset_in_table(self, send_freq, select):
-        searched_index = np.abs(np.array(send_freq)-self.excel.freq_var).argmin()
+        searched_index = np.abs(np.array(send_freq) - self.excel.freq_var).argmin()
         if select == "output_offset":
             if send_freq == self.excel.freq_var[searched_index]:
                 return self.excel.output_offset_var[searched_index]
@@ -1353,21 +2194,21 @@ class Dialog(CommonDialogVar):
                     print("frequency range over error")
                     return
                 else:
-                    return self.excel.output_offset_var[searched_index]\
-                        + (send_freq - self.excel.freq_var[searched_index])\
-                        * (self.excel.output_offset_var[searched_index + 1]
-                           - self.excel.output_offset_var[searched_index])\
-                        / (self.excel.freq_var[searched_index + 1] - self.excel.freq_var[searched_index])
+                    return self.excel.output_offset_var[searched_index] \
+                           + (send_freq - self.excel.freq_var[searched_index]) \
+                           * (self.excel.output_offset_var[searched_index + 1]
+                              - self.excel.output_offset_var[searched_index]) \
+                           / (self.excel.freq_var[searched_index + 1] - self.excel.freq_var[searched_index])
             elif send_freq < self.excel.freq_var[searched_index]:
                 if searched_index == 0:  # range 안에 들어오는지 체크
                     print("frequency range over error")
                     return
                 else:
-                    return self.excel.output_offset_var[searched_index - 1]\
-                        + (send_freq - self.excel.freq_var[searched_index - 1])\
-                        * (self.excel.output_offset_var[searched_index]
-                           - self.excel.output_offset_var[searched_index - 1])\
-                        / (self.excel.freq_var[searched_index] - self.excel.freq_var[searched_index - 1])
+                    return self.excel.output_offset_var[searched_index - 1] \
+                           + (send_freq - self.excel.freq_var[searched_index - 1]) \
+                           * (self.excel.output_offset_var[searched_index]
+                              - self.excel.output_offset_var[searched_index - 1]) \
+                           / (self.excel.freq_var[searched_index] - self.excel.freq_var[searched_index - 1])
         elif select == "input_offset":
             if send_freq == self.excel.freq_var[searched_index]:
                 return self.excel.input_offset_var[searched_index]
@@ -1377,9 +2218,9 @@ class Dialog(CommonDialogVar):
                     return
                 else:
                     return self.excel.input_offset_var[searched_index] \
-                           + (send_freq - self.excel.freq_var[searched_index])\
+                           + (send_freq - self.excel.freq_var[searched_index]) \
                            * (self.excel.input_offset_var[searched_index + 1]
-                              - self.excel.input_offset_var[searched_index])\
+                              - self.excel.input_offset_var[searched_index]) \
                            / (self.excel.freq_var[searched_index + 1]
                               - self.excel.freq_var[searched_index])
             elif send_freq < self.excel.freq_var[searched_index]:
@@ -1387,10 +2228,10 @@ class Dialog(CommonDialogVar):
                     print("frequency range over error")
                     return
                 else:
-                    return self.excel.input_offset_var[searched_index - 1]\
-                           + (send_freq - self.excel.freq_var[searched_index - 1])\
+                    return self.excel.input_offset_var[searched_index - 1] \
+                           + (send_freq - self.excel.freq_var[searched_index - 1]) \
                            * (self.excel.input_offset_var[searched_index]
-                              - self.excel.input_offset_var[searched_index - 1])\
+                              - self.excel.input_offset_var[searched_index - 1]) \
                            / (self.excel.freq_var[searched_index]
                               - self.excel.freq_var[searched_index - 1])
             else:
@@ -1436,6 +2277,6 @@ class Dialog(CommonDialogVar):
     def atr_error_state(self, text):
         self.atr_state = ""
         print("p1 procedure error")
-        pg.alert(text=text+"\n",
+        pg.alert(text=text + "\n",
                  title="Error",
                  button="확인")

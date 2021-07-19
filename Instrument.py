@@ -42,7 +42,6 @@ class Instrument:
                      title="Error",
                      button="확인")
             return
-        print(self.com_inst.query(command))
         return self.com_inst.query(command)
 
     def write_instrument(self, command):
@@ -63,7 +62,6 @@ class Instrument:
                      title="Error",
                      button="확인")
             return
-        print(self.com_inst.read())
         return self.com_inst.read()
 
 
@@ -106,6 +104,14 @@ if __name__ == "__main__":
     # test.write_instrument(command="VOLT:LEV 4.5") # voltage set
     # time.sleep(2)
     # test.write_instrument(command="CURR:LEV 4.5") # current set
+    # time.sleep(2)
+    # test.write_instrument(command="VOLT?") # voltage set
+    # time.sleep(2)
+    # test.write_instrument(command="CURR?") # current set
+    # time.sleep(2)
+    # test.write_instrument(command="MEAS:VOLT?") # voltage set
+    # time.sleep(2)
+    # test.write_instrument(command="MEAS:CURR?") # current set
     # time.sleep(2)
 
     # sourece test

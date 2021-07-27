@@ -13,7 +13,8 @@ class Instrument:
         self.com_inst = ""
         self.opened = False
         self.test_except = False
-        print("instrument opened")
+        self.anritsu = False
+        self.agilent = False
 
     def open_instrument_gpib(self, gpib_address):
         if self.test_except:
@@ -21,6 +22,13 @@ class Instrument:
         else:
             self.gpib_address = gpib_address
             self.__open_instrument(com_opt="GPIB")
+            checker = str(self.query_instrument(command="*IDN?"))
+            if checker.find("ANRITSU") != -1:
+                self.anritsu = True
+                self.agilent = False
+            elif checker.find("Agilent") != -1:
+                self.anritsu = False
+                self.agilent = True
 
     def __open_instrument(self, com_opt):
         if self.test_except:
@@ -38,6 +46,7 @@ class Instrument:
                 pass
             else:
                 return
+            print("instrument opened")
 
     def query_instrument(self, command):
         if self.test_except:
@@ -88,6 +97,29 @@ class PowerMeter(Instrument):
         self.frequency = 0
         self.probe_channel = 1
 
+    def set_rel(self, on_off):
+        if self.agilent is True:
+            self.set_rel_agilent(on_off=on_off)
+        elif self.anritsu is True:
+            print("not done 0")
+        else:
+            print("error 0")
+
+    def set_freq(self, freq, ch=1):
+        if self.agilent is True:
+            self.write_instrument("SENS{0}:FREQ {1}HZ".format(ch, freq))
+            self.frequency = freq
+        elif self.anritsu is True:
+            print("not done 1")
+        else:
+            print("error 1")
+
+    def set_offset(self, offset, ch=1):
+        if self.agilent is True:
+            self.set_offset_agilent(offset=offset, ch=ch)
+        elif self.anritsu is True:
+            pass
+
     def set_rel_agilent(self, on_off):
         if on_off:
             self.write_instrument(command="CALC:REL:AUTO ONCE")
@@ -104,9 +136,25 @@ class PowerMeter(Instrument):
         self.write_instrument(command="SENS{0}:CORR:LOSS{1} -{2}DB".format(ch, ch, offset))
 
     def get_output(self, display_ch=1, round_num=2):
-        return round(float(self.query_instrument("FETC{0}?".format(display_ch))), round_num)
+        if self.agilent is True:
+            return self.get_output_agilent(display_ch=display_ch, round_num=round_num)
+        elif self.anritsu is True:
+            print("not done 2")
+        else:
+            print("error 2")
 
     def get_rel(self, display_ch=1, round_num=2):
+        if self.agilent is True:
+            return self.get_rel_agilent(display_ch=display_ch, round_num=round_num)
+        elif self.anritsu is True:
+            print("not done 3")
+        else:
+            print("error 3")
+
+    def get_output_agilent(self, display_ch=1, round_num=2):
+        return round(float(self.query_instrument("FETC{0}?".format(display_ch))), round_num)
+
+    def get_rel_agilent(self, display_ch=1, round_num=2):
         return round(float(self.query_instrument("FETC{0}:REL?".format(display_ch))), round_num)
 
 
@@ -159,6 +207,32 @@ class Source(Instrument):
         self._set_dbm = 0.0
         self._output_state = False
         self._frequency = 0
+        self.anritsu = False
+        self.agilent = False
+
+    def set_output(self, on_off):
+        if self.agilent is True:
+            self.set_output_agilent(on_off=on_off)
+        elif self.anritsu is True:
+            self.set_output_anritsu(on_off=on_off)
+
+    def set_freq(self, freq):
+        if self.agilent is True:
+            self.set_freq_agilent(freq=freq)
+        elif self.anritsu is True:
+            self.set_freq_anritsu(freq=freq)
+
+    def set_offset(self, offset):
+        if self.agilent is True:
+            self.set_offset_agilent(offset=offset)
+        elif self.anritsu is True:
+            self.set_offset_anritsu(offset=offset)
+
+    def set_dbm(self, dbm):
+        if self.agilent is True:
+            self.set_dbm_agilent(dbm=dbm)
+        elif self.anritsu is True:
+            self.set_dbm_anritsu(dbm=dbm)
 
     def set_output_agilent(self, on_off):
         if on_off:
@@ -180,11 +254,51 @@ class Source(Instrument):
         self.write_instrument(command="POW:AMPL {0} dBM".format(dbm))
         self._set_dbm = dbm
 
+    def set_output_anritsu(self, on_off):
+        if on_off:
+            self.write_instrument(command="RF1")
+            self._output_state = True
+        else:
+            self.write_instrument(command="RF0")
+            self._output_state = False
+
+    def set_freq_anritsu(self, freq):
+        self.write_instrument(command="CF0 {0} HZ".format(freq))  # Hz
+        self._frequency = freq
+
+    def set_offset_anritsu(self, offset):
+        self.write_instrument(command="LOS -{0} DB".format(offset))
+        self._offset = offset
+
+    def set_offset_on_anritsu(self):
+        self.write_instrument(command="LO1")
+
+    def set_offset_off_anritsu(self):
+        self.write_instrument(command="LO0")
+
+    def set_dbm_anritsu(self, dbm):
+        self.write_instrument(command="L0 {0} DM".format(dbm))
+        self._set_dbm = dbm
+
+
+class Spectrum(Instrument):
+    def __init__(self):
+        Instrument.__init__(self)
+
+
+class Network(Instrument):
+    def __init__(self):
+        Instrument.__init__(self)
+
 
 if __name__ == "__main__":
+    # test = PowerMeter()
+    # test.open_instrument_gpib(gpib_address="13")
+    # test.query_instrument(command="*IDN?")
+
     test = PowerMeter()
-    test.open_instrument_gpib(gpib_address="13")
-    test.query_instrument(command="*IDN?")
+    test.open_instrument_gpib("13")
+    print(test.get_rel())
 
     # power supply test
     # test.write_instrument(command="*IDN?")

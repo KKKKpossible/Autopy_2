@@ -74,6 +74,10 @@ class ExcelVariableDeclare:
         self.power_baud_rate = ""  # default Power supply
         self.power_meter_baud_rate = ""  # default Power meter
 
+        self.source_ip_address = ""  # default Source generate
+        self.power_ip_address = ""  # default Power supply
+        self.power_ip_address = ""  # default Power meter
+
 
 class CommonDialogVar:
     def __init__(self):
@@ -99,11 +103,10 @@ class CommonDialogVar:
 
         self.atr_start_button_id = 0
         self.atr_stop_button_id = 1
-        self.atr_display_button_id = 2
-        self.atr_save_button_id = 3
-        self.atr_measure_input_offset_id = 4
-        self.atr_measure_output_offset_id = 5
-        self.atr_save_all_offset_id = 6
+        self.atr_save_button_id = 2
+        self.atr_measure_input_offset_id = 3
+        self.atr_measure_output_offset_id = 4
+        self.atr_save_all_offset_id = 5
 
         self.remote_frame = ""
         self.atr_frame = ""
@@ -132,8 +135,9 @@ class CommonDialogVar:
         self.atr_rf_output = tkinter.StringVar()
         self.atr_current = tkinter.StringVar()
         self.atr_aging_left = tkinter.StringVar()
-        self.atr_system_option = False
-        self.atr_sys_fwd = tkinter.StringVar()
+        self.atr_sys_input = tkinter.StringVar()
+        self.atr_sys_output = tkinter.StringVar()
+        self.atr_sys_curr = tkinter.StringVar()
         self.atr_sys_freq = tkinter.StringVar()
         self.atr_sys_temp = tkinter.StringVar()
         self.atr_sys_cmd = tkinter.StringVar()
@@ -165,13 +169,23 @@ class CommonDialogVar:
         self.inst_source = ""
         self.inst_power = ""
         self.inst_power_meter = ""
+        self.inst_network = ""
+        self.inst_spectrum = ""
 
         self.atr_stop = False
 
         self.atr_seq = 0
         self.atr_compare_0 = 0.0
         self.atr_compare_1 = 0.0
+
+        self.atr_comp_list_0 = []
+        self.atr_comp_list_1 = []
+        self.atr_comp_sampling = 2  # 2 times per list
+
         self.adder = 0.0
+
+        self.after_time_ms_250 = 250
+        self.after_time_ms_500 = 500
 
     def root_close(self):
         self.g_root.withdraw()
@@ -190,7 +204,7 @@ class ExcelCommonVar:
         self.excel_current_unit = ["A"]
         self.excel_power_meter_probe_unit = ["Channel"]
         self.excel_aging_unit = ["sec", "min", "hour"]
-        self.excel_com_unit = ["GPIB", "USB", "Serial"]
+        self.excel_com_unit = ["GPIB", "USB", "Serial", "Ethernet"]
         self.excel_dbm_unit = ["dBm"]
         self.rf_power = []
 
@@ -213,6 +227,7 @@ class ExcelCommonVar:
         self.excel_overdrive_input_column = "Q"
         self.excel_pout_column = "R"
         self.save_hor = True
+        self.excel_load_done = False
 
 
 class Excel(ExcelCommonVar, ExcelVariableDeclare):
@@ -251,6 +266,12 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
     #         self.l_ws_list[sheet_num] = self.l_wb[ws_name[sheet_num]]
 
     # frequency, io offset, voltage get from work sheet 0
+
+    def __check_config(self, option):
+        self.__get_unit_from_column(option)
+        if self.load_clear is not True:
+            return -1
+
     def __get_offset_procedure_version_0(self):
         # 현재 self.l_ws_list[0] frequency, input offset, output offset, voltage 정보가 들어 있다.
         # 이것을 추출하는 작업을 하려함.
@@ -296,76 +317,58 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
         # 0. var reset
         self.__var_reset()
         # 1. freq config
-        self.__get_unit_from_column(self.excel_freq_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_freq_column) == -1:
             return
         # 2. check input offset
-        self.__get_unit_from_column(self.excel_input_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_input_column) == -1:
             return
         # 3. check output offset
-        self.__get_unit_from_column(self.excel_output_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_output_column) == -1:
             return
         # 4. check power voltage set
-        self.__get_unit_from_column(self.excel_power_voltage_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_power_voltage_column) == -1:
             return
         # 5. check power current limit
-        self.__get_unit_from_column(self.excel_power_current_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_power_current_column) == -1:
             return
         # 6. check power meter probe channel
-        self.__get_unit_from_column(self.excel_power_meter_probe_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_power_meter_probe_column) == -1:
             return
         # 7. check start aging time
-        self.__get_unit_from_column(self.excel_aging_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_aging_column) == -1:
             return
         # 8. check source generate communication
-        self.__get_unit_from_column(self.excel_source_com_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_source_com_column) == -1:
             return
         # 9. check power supply communication
-        self.__get_unit_from_column(self.excel_power_com_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_power_com_column) == -1:
             return
         # 10. check power meter communication
-        self.__get_unit_from_column(self.excel_power_meter_com_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_power_meter_com_column) == -1:
             return
         # 11. check spectrum communication
-        self.__get_unit_from_column(self.excel_spectrum_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_spectrum_column) == -1:
             return
         # 12. check network communication
-        self.__get_unit_from_column(self.excel_network_com_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_network_com_column) == -1:
             return
         # 13. check select frequency
-        self.__get_unit_from_column(self.excel_select_freq_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_select_freq_column) == -1:
             return
         # 14. check output offset ref power
-        self.__get_unit_from_column(self.excel_output_off_ref_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_output_off_ref_column) == -1:
             return
         # 15. check ATR start input dBm
-        self.__get_unit_from_column(self.excel_atr_start_input_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_atr_start_input_column) == -1:
             return
         # 16. check P_sat input dBm
-        self.__get_unit_from_column(self.excel_p_sat_input_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_p_sat_input_column) == -1:
             return
         # 17. check Overdrive input dBm
-        self.__get_unit_from_column(self.excel_overdrive_input_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_overdrive_input_column) == -1:
             return
         # 18. check Pout output dBm
-        self.__get_unit_from_column(self.excel_pout_column)
-        if self.load_clear is not True:
+        if self.__check_config(self.excel_pout_column) == -1:
             return
         # 19. load freq
         self.__load_var_from_column(self.excel_freq_column)
@@ -538,9 +541,12 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
             elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[2]:
                 self.source_comm_option = self.excel_com_unit[2]  # Serial
                 self.source_baud_rate = self.l_ws_list[0][d_unit_cell + 1].value
+            elif self.l_ws_list[0][d_unit_cell].value == self.excel_com_unit[3]:
+                self.source_comm_option = self.excel_com_unit[3]  # Ethernet
+                self.source_baud_rate = self.l_ws_list[0][d_unit_cell + 1].value
             else:
                 pg.alert(text="Source communication unit 설정되지 않음\n"
-                              + "ex) GPIB, USB, Serial\nSerial baud rate 필요",
+                              + "ex) GPIB, USB, Serial, Ethernet\nSerial: baud rate 필요\nEthernet: ip address 필요",
                          title="Error",
                          button="확인")
                 self.load_clear = False
@@ -688,7 +694,7 @@ class Excel(ExcelCommonVar, ExcelVariableDeclare):
             elif data_column == self.excel_power_voltage_column:
                 self.power_voltage_var = self.l_ws_list[0][_data_cell].value
             elif data_column == self.excel_power_current_column:
-                self.power_cur_var = self.l_ws_list[0][_data_cell].value
+                self.power_current_var = self.l_ws_list[0][_data_cell].value
             elif data_column == self.excel_power_meter_probe_column:
                 self.power_m_probe = self.l_ws_list[0][_data_cell].value
             elif data_column == self.excel_aging_column:
@@ -767,7 +773,7 @@ class Dialog(CommonDialogVar):
 
         button = tkinter.Button(self.g_root,
                                 text=text,
-                                command=partial(self.__button_clicked, _id),
+                                command=partial(self.__main_window_button_clicked, _id),
                                 width=self.main_butt_width,
                                 height=self.main_butt_height)
         if _id is None:
@@ -835,7 +841,7 @@ class Dialog(CommonDialogVar):
 
         button = tkinter.Button(self.g_root,
                                 text=text,
-                                command=partial(self.__button_clicked,
+                                command=partial(self.__main_window_button_clicked,
                                                 _id),
                                 width=self.main_butt_width,
                                 height=self.main_butt_height)
@@ -878,56 +884,63 @@ class Dialog(CommonDialogVar):
         else:
             pass
 
-    def __button_clicked(self, _id):
-        if _id is None:
-            pass
-        elif _id == self.remote_p_meter_id:
-            pass
-        elif _id == self.remote_power_id:
-            pass
-        elif _id == self.remote_network_id:
-            pass
-        elif _id == self.remote_source_id:
-            pass
-        elif _id == self.remote_spectrum_id:
-            pass
-        elif _id == self.remote_all_id:
-            pass
-        elif _id == self.atr_power_id:
+    def __main_window_button_clicked(self, _id):
+        if self.excel.excel_load_done is False:
+            self.excel.load_clear = True
+            self.load_file_dialog()
+            if self.excel_path != "-1":
+                self.excel.load_power_atr_excel_procedure(load_path=self.excel_path)
+                if self.excel.load_clear is True:
+                    self.excel.excel_load_done = True
+            else:
+                self.excel.load_clear = False
+        if self.excel.load_clear is True:
             # load excel dialog open
-            self.load_file_dialog()
-            if self.excel_path != "-1":
-                self.excel.load_power_atr_excel_procedure(load_path=self.excel_path)
-                if self.excel.load_clear is True:
-                    self.__new_window(_id=self.atr_power_id)
-        elif _id == self.atr_network_id:
-            pass
-        elif _id == self.atr_spectrum_id:
-            pass
-        elif _id == self.atr_offset_id:
-            self.load_file_dialog()
-            if self.excel_path != "-1":
-                self.excel.load_power_atr_excel_procedure(load_path=self.excel_path)
-                if self.excel.load_clear is True:
-                    self.__new_window(_id=self.atr_offset_id)
+            if _id is None:
+                print("unknown window id")
+            elif _id == self.remote_p_meter_id:
+                self.__new_window_create(_id=self.remote_p_meter_id)
+            elif _id == self.remote_power_id:
+                self.__new_window_create(_id=self.remote_power_id)
+            elif _id == self.remote_network_id:
+                self.__new_window_create(_id=self.remote_network_id)
+            elif _id == self.remote_source_id:
+                self.__new_window_create(_id=self.remote_source_id)
+            elif _id == self.remote_spectrum_id:
+                self.__new_window_create(_id=self.remote_spectrum_id)
+            elif _id == self.remote_all_id:
+                self.__new_window_create(_id=self.remote_all_id)
+            elif _id == self.atr_power_id:
+                self.__new_window_create(_id=self.atr_power_id)
+            elif _id == self.atr_network_id:
+                pass
+            elif _id == self.atr_spectrum_id:
+                pass
+            elif _id == self.atr_offset_id:
+                self.__new_window_create(_id=self.atr_offset_id)
 
     def __atr_power_new_window(self):
         new_window = tkinter.Toplevel(self.g_root)
-        new_window.geometry("800x500")
+        new_window.geometry("800x350")
         new_window.title("Power ATR")
         new_window.iconbitmap("exodus.ico")
         new_window.resizable(False, False)
+
+        label_pad_x = (20, 0)
+        entry_pad_x = (20, 0)
+        sys_pad_y = (20, 0)
+        button_pad_y = (30, 0)
 
         entry_width = 15
 
         # line_0
         # panel label
         label_panel = tkinter.Label(new_window, text="", anchor="w")
-        label_panel.grid(row=0, column=0, columnspan=5, sticky="NEWS", padx=10, pady=10)
+        label_panel.grid(row=0, column=0, columnspan=6, sticky="NEWS", pady=10)
         # line_1
         # frequency label
         label = tkinter.Label(new_window, text="Frequency")
-        label.grid(row=1, column=0, sticky="NEWS")
+        label.grid(row=1, column=0, sticky="NEWS", padx=label_pad_x)
         # input offset label
         label = tkinter.Label(new_window, text="Input offset")
         label.grid(row=1, column=1, sticky="NEWS")
@@ -962,7 +975,7 @@ class Dialog(CommonDialogVar):
                               width=entry_width,
                               state="readonly",
                               justify="center")
-        entry.grid(row=2, column=0, sticky="NEWS")
+        entry.grid(row=2, column=0, sticky="NEWS", padx=entry_pad_x)
         # input offset entry
         self.atr_input_offset = tkinter.StringVar(new_window)
         self.atr_input_offset.set("{0} dB".format(self.excel.input_offset_var[0]))
@@ -1008,13 +1021,12 @@ class Dialog(CommonDialogVar):
                               state="readonly",
                               justify="center")
         entry.grid(row=2, column=5, sticky="NEWS")
-
         # line_3
         # rf input label
-        label = tkinter.Label(new_window, text="RF Input     ", anchor="e")
-        label.grid(row=3, column=0, sticky="NEWS")
+        label = tkinter.Label(new_window, text="RF Input", anchor="center")
+        label.grid(row=3, column=0, sticky="NEWS", padx=label_pad_x)
         # rf output label
-        label = tkinter.Label(new_window, text="RF Output    ", anchor="e")
+        label = tkinter.Label(new_window, text="RF Output", anchor="center")
         label.grid(row=3, column=1, sticky="NEWS")
         # current label
         label = tkinter.Label(new_window, text="Current")
@@ -1058,72 +1070,17 @@ class Dialog(CommonDialogVar):
         entry.grid(row=4, column=3, sticky="NEWS")
 
         # line_5
-        # rf output label
-        label = tkinter.Label(new_window, text="  System option", anchor="w")
-        label.grid(row=5, column=0, sticky="NEWS", columnspan=2)
-        # System Forward Label
-        label = tkinter.Label(new_window, text="Sys Fwd")
-        label.grid(row=5, column=2, sticky="NEWS")
-        # System Frequency Label
-        label = tkinter.Label(new_window, text="Sys Freq")
-        label.grid(row=5, column=3, sticky="NEWS")
-        # System Temperature Label
-        label = tkinter.Label(new_window, text="Sys Temp")
-        label.grid(row=5, column=4, sticky="NEWS")
-
-        # line_6
-        # sys option checkbox
-        checkbox = tkinter.Checkbutton(new_window,
-                                       text="                      ",
-                                       command=self.atr_sys_opt_clicked)
-        checkbox.grid(row=6, column=0, columnspan=2, sticky="NEWS")
-        # sys fwd entry
-        self.atr_sys_fwd = tkinter.StringVar(new_window)
-        entry = tkinter.Entry(new_window,
-                              textvariable=self.atr_sys_fwd,
-                              width=entry_width,
-                              state="readonly",
-                              justify="center")
-        entry.grid(row=6, column=2, sticky="EW")
-        # sys freq entry
-        self.atr_sys_freq = tkinter.StringVar(new_window)
-        entry = tkinter.Entry(new_window,
-                              textvariable=self.atr_sys_freq,
-                              width=entry_width,
-                              state="readonly",
-                              justify="center")
-        entry.grid(row=6, column=3, sticky="EW")
-        # sys freq temp
-        self.atr_sys_temp = tkinter.StringVar(new_window)
-        entry = tkinter.Entry(new_window,
-                              textvariable=self.atr_sys_temp,
-                              width=entry_width,
-                              state="readonly",
-                              justify="center")
-        entry.grid(row=6, column=4, sticky="EW")
-
-        # line 7
-        # System cmd Label
-        label = tkinter.Label(new_window, text="Sys cmd", anchor="w")
-        label.grid(row=7, column=0, sticky="NEWS", columnspan=2)
         # Source communication label
         label = tkinter.Label(new_window, text="Source com")
-        label.grid(row=7, column=2, sticky="NEWS")
+        label.grid(row=5, column=0, sticky="NEWS", padx=label_pad_x)
         # Power supply communication label
         label = tkinter.Label(new_window, text="Power com")
-        label.grid(row=7, column=3, sticky="NEWS")
+        label.grid(row=5, column=1, sticky="NEWS")
         # Power meter communication label
         label = tkinter.Label(new_window, text="Power_m com")
-        label.grid(row=7, column=4, sticky="NEWS")
+        label.grid(row=5, column=2, sticky="NEWS")
 
-        # line 8
-        # System cmd text
-        self.atr_sys_cmd = tkinter.StringVar(new_window)
-        entry = tkinter.Entry(new_window,
-                              textvariable=self.atr_sys_cmd,
-                              width=entry_width * 2,
-                              justify="center")
-        entry.grid(row=8, column=0, sticky="EW", columnspan=2)
+        # line_6
         # source communication entry
         self.atr_source_com = tkinter.StringVar(new_window)
         self.atr_source_com.set(self.excel.source_com_var)
@@ -1132,7 +1089,7 @@ class Dialog(CommonDialogVar):
                               width=entry_width,
                               state="readonly",
                               justify="center")
-        entry.grid(row=8, column=2, sticky="EW")
+        entry.grid(row=6, column=0, sticky="EW", padx=entry_pad_x)
         # power supply communication entry
         self.atr_power_com = tkinter.StringVar(new_window)
         self.atr_power_com.set(self.excel.power_com_var)
@@ -1141,7 +1098,7 @@ class Dialog(CommonDialogVar):
                               width=entry_width,
                               state="readonly",
                               justify="center")
-        entry.grid(row=8, column=3, sticky="EW")
+        entry.grid(row=6, column=1, sticky="EW")
         # power meter communication entry
         self.atr_power_meter_com = tkinter.StringVar(new_window)
         self.atr_power_meter_com.set(self.excel.power_meter_com_var)
@@ -1150,7 +1107,76 @@ class Dialog(CommonDialogVar):
                               width=entry_width,
                               state="readonly",
                               justify="center")
+        entry.grid(row=6, column=2, sticky="EW")
+
+        # line_7
+        # System Frequency Label
+        label = tkinter.Label(new_window, text="Sys Freq")
+        label.grid(row=7, column=0, sticky="NEWS", padx=label_pad_x, pady=sys_pad_y)
+        # System Input Label
+        label = tkinter.Label(new_window, text="Sys Input")
+        label.grid(row=7, column=1, sticky="NEWS", pady=sys_pad_y)
+        # System Forward Label
+        label = tkinter.Label(new_window, text="Sys Output")
+        label.grid(row=7, column=2, sticky="NEWS", pady=sys_pad_y)
+        # System Current Label
+        label = tkinter.Label(new_window, text="Sys Current")
+        label.grid(row=7, column=3, sticky="NEWS", pady=sys_pad_y)
+        # System Temperature Label
+        label = tkinter.Label(new_window, text="Sys Temp")
+        label.grid(row=7, column=4, sticky="NEWS", pady=sys_pad_y)
+        # System cmd Label
+        label = tkinter.Label(new_window, text="Sys cmd")
+        label.grid(row=7, column=5, sticky="NEWS", pady=sys_pad_y)
+
+        # line_8
+        # sys freq entry
+        self.atr_sys_freq = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_freq,
+                              width=entry_width,
+                              state="readonly",
+                              justify="center")
+        entry.grid(row=8, column=0, sticky="EW", padx=entry_pad_x)
+        # sys input entry
+        self.atr_sys_input = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_input,
+                              width=entry_width,
+                              state="readonly",
+                              justify="center")
+        entry.grid(row=8, column=1, sticky="EW")
+        # sys output entry
+        self.atr_sys_output = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_output,
+                              width=entry_width,
+                              state="readonly",
+                              justify="center")
+        entry.grid(row=8, column=2, sticky="EW")
+        # sys current
+        self.atr_sys_curr = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_curr,
+                              width=entry_width,
+                              state="readonly",
+                              justify="center")
+        entry.grid(row=8, column=3, sticky="EW")
+        # sys temperature
+        self.atr_sys_temp = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_temp,
+                              width=entry_width,
+                              state="readonly",
+                              justify="center")
         entry.grid(row=8, column=4, sticky="EW")
+        # System cmd entry
+        self.atr_sys_cmd = tkinter.StringVar(new_window)
+        entry = tkinter.Entry(new_window,
+                              textvariable=self.atr_sys_cmd,
+                              width=entry_width,
+                              justify="center")
+        entry.grid(row=8, column=5, sticky="EW")
 
         # line 9
         # ATR start button
@@ -1158,31 +1184,64 @@ class Dialog(CommonDialogVar):
                                 text="START",
                                 width=self.main_butt_width,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_start_button_id))
-        button.grid(row=9, column=0, sticky="NEWS", columnspan=2)
+                                command=partial(self.__new_window_button_clicked, self.atr_start_button_id))
+        button.grid(row=9, column=0, sticky="NEWS", columnspan=2, padx=entry_pad_x, pady=button_pad_y)
         # ATR stop button
         button = tkinter.Button(new_window,
                                 text="STOP",
                                 width=self.main_butt_width,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_stop_button_id))
-        button.grid(row=9, column=2, sticky="NEWS", columnspan=2)
-
-        # line 10
-        # ATR start button
-        button = tkinter.Button(new_window,
-                                text="DISPLAY",
-                                width=self.main_butt_width,
-                                height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_display_button_id))
-        button.grid(row=10, column=0, sticky="NEWS", columnspan=2)
-        # ATR stop button
+                                command=partial(self.__new_window_button_clicked, self.atr_stop_button_id))
+        button.grid(row=9, column=2, sticky="NEWS", columnspan=2, pady=button_pad_y)
+        # ATR save button
         button = tkinter.Button(new_window,
                                 text="SAVE",
                                 width=self.main_butt_width,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_save_button_id))
-        button.grid(row=10, column=2, sticky="NEWS", columnspan=2)
+                                command=partial(self.__new_window_button_clicked, self.atr_save_button_id))
+        button.grid(row=9, column=4, sticky="NEWS", columnspan=2, pady=button_pad_y)
+
+    def __remote_p_meter_new_window(self):
+        new_window = tkinter.Toplevel(self.g_root)
+        new_window.geometry("350x200")
+        new_window.title("Remote power meter")
+        new_window.iconbitmap("exodus.ico")
+        new_window.resizable(False, False)
+
+    def __remote_power_new_window(self):
+        new_window = tkinter.Toplevel(self.g_root)
+        new_window.geometry("350x200")
+        new_window.title("Remote power supply")
+        new_window.iconbitmap("exodus.ico")
+        new_window.resizable(False, False)
+
+    def __remote_network_new_window(self):
+        new_window = tkinter.Toplevel(self.g_root)
+        new_window.geometry("350x200")
+        new_window.title("Remote network")
+        new_window.iconbitmap("exodus.ico")
+        new_window.resizable(False, False)
+
+    def __remote_source_new_window(self):
+        new_window = tkinter.Toplevel(self.g_root)
+        new_window.geometry("350x200")
+        new_window.title("Remote source")
+        new_window.iconbitmap("exodus.ico")
+        new_window.resizable(False, False)
+
+    def __remote_spectrum_new_window(self):
+        new_window = tkinter.Toplevel(self.g_root)
+        new_window.geometry("350x200")
+        new_window.title("Remote spectrum")
+        new_window.iconbitmap("exodus.ico")
+        new_window.resizable(False, False)
+
+    def __remote_all_new_window(self):
+        self.__remote_p_meter_new_window()
+        self.__remote_power_new_window()
+        self.__remote_network_new_window()
+        self.__remote_source_new_window()
+        self.__remote_spectrum_new_window()
 
     def __offset_new_window(self):
         new_window = tkinter.Toplevel(self.g_root)
@@ -1196,7 +1255,7 @@ class Dialog(CommonDialogVar):
                                 text="Measure Input",
                                 width=self.main_butt_width * 3,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_measure_input_offset_id))
+                                command=partial(self.__new_window_button_clicked, self.atr_measure_input_offset_id))
         button.grid(row=0, column=0, sticky="NEWS", columnspan=1, padx=30, pady=15)
 
         # output offset start button
@@ -1204,7 +1263,7 @@ class Dialog(CommonDialogVar):
                                 text="Measure Output",
                                 width=self.main_butt_width * 3,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_measure_output_offset_id))
+                                command=partial(self.__new_window_button_clicked, self.atr_measure_output_offset_id))
         button.grid(row=1, column=0, sticky="NEWS", columnspan=1, padx=30, pady=15)
 
         # save all offset var button
@@ -1212,20 +1271,22 @@ class Dialog(CommonDialogVar):
                                 text="Save All",
                                 width=self.main_butt_width * 3,
                                 height=self.main_butt_height,
-                                command=partial(self.__atr_button_clicked, self.atr_save_all_offset_id))
+                                command=partial(self.__new_window_button_clicked, self.atr_save_all_offset_id))
         button.grid(row=2, column=0, sticky="NEWS", columnspan=1, padx=30, pady=15)
 
-    def __new_window(self, _id):
+    def __new_window_create(self, _id):
+        if _id == self.remote_p_meter_id:
+            self.__remote_p_meter_new_window()
         if _id == self.remote_power_id:
-            pass
+            self.__remote_power_new_window()
         elif _id == self.remote_network_id:
-            pass
+            self.__remote_network_new_window()
         elif _id == self.remote_source_id:
-            pass
+            self.__remote_source_new_window()
         elif _id == self.remote_spectrum_id:
-            pass
+            self.__remote_spectrum_new_window()
         elif _id == self.remote_all_id:
-            pass
+            self.__remote_all_new_window()
         elif _id == self.atr_power_id:
             self.__atr_power_new_window()
         elif _id == self.atr_network_id:
@@ -1234,14 +1295,14 @@ class Dialog(CommonDialogVar):
             pass
         elif _id == self.atr_offset_id:
             self.__offset_new_window()
+        else:
+            print("unknown new window id")
 
-    def __atr_button_clicked(self, _id):
+    def __new_window_button_clicked(self, _id):
         if _id == self.atr_start_button_id:
             self.atr_start_clicked()
         elif _id == self.atr_stop_button_id:
             self.atr_stop_clicked()
-        elif _id == self.atr_display_button_id:
-            self.atr_display_clicked()
         elif _id == self.atr_save_button_id:
             # save excel dialog open
             self.save_file_dialog(_id=self.atr_save_button_id)
@@ -1275,48 +1336,63 @@ class Dialog(CommonDialogVar):
         if _send_offset_o is not None:
             if _send_offset_o < 0:
                 _send_offset_o = -_send_offset_o
+        if self.atr_seq == 0:
+            self.atr_comp_list_0.clear()
+            self.atr_comp_list_1.clear()
         # 1. set instrument
         self.atr_seq += 1
         if self.atr_seq == 1:
             # 1. set instrument instance
-            self.__atr_inst_call()
+            self.__atr_inst_call(source=True, p_meter=True)
             # 2. reset var
             self._reset_input_offset_var()
         # 3. reset instrument
         elif self.atr_seq == 2:
-            self.inst_source.set_output_agilent(on_off=False)  # set source off
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # set power meter rel off
+            self.inst_source.set_output(on_off=False)
+            self.inst_power_meter.set_rel(on_off=False)  # set power meter rel off
         # 4. set instrument
         elif self.atr_seq == 3:
-            self.inst_source.set_offset_agilent(offset=0)  # set source offset
-            self.inst_power_meter.set_offset_agilent(offset=0, ch=self.excel.power_m_probe)  # set power meter offset
+            self.inst_source.set_offset(offset=0)
+            self.inst_power_meter.set_offset(offset=0, ch=self.excel.power_m_probe)  # set power meter offset
         elif self.atr_seq == 4:
-            self.inst_source.set_dbm_agilent(dbm=source_power)  # set dBm
+            self.inst_source.set_dbm(dbm=source_power)
         elif self.atr_seq == 5:
-            self.inst_source.set_output_agilent(on_off=True)  # set source on
+            self.inst_source.set_output(on_off=True)
         elif self.atr_seq == 6:
-            self.inst_source.set_freq_agilent(freq=_send_freq)  # set source frequency
-            self.inst_power_meter.set_freq_agilent(freq=_send_freq, ch=self.excel.power_m_probe)  # set power_m freq
+            self.inst_source.set_freq(freq=_send_freq)
+            self.inst_power_meter.set_freq(freq=_send_freq, ch=self.excel.power_m_probe)  # set power_m freq
         elif self.atr_seq == 7:
-            self.atr_compare_0 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
-        elif self.atr_seq == 8:
-            self.atr_compare_1 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
-        elif self.atr_seq == 9:
-            if abs(self.atr_compare_0 - self.atr_compare_1) > 1e-9:
-                self.atr_seq -= 3
+            self.atr_comp_list_0.append(self.inst_power_meter.get_output(display_ch=1, round_num=2))
+            if len(self.atr_comp_list_0) == self.atr_comp_sampling:
+                pass
             else:
+                self.atr_seq -= 1
+        elif self.atr_seq == 8:
+            self.atr_comp_list_1.append(self.inst_power_meter.get_output(display_ch=1, round_num=2))
+            if len(self.atr_comp_list_1) == self.atr_comp_sampling:
+                pass
+            else:
+                self.atr_seq -= 1
+        elif self.atr_seq == 9:
+            if self.atr_comp_list_0 == self.atr_comp_list_1:
                 self.mes_input_offset.append(self.inst_power_meter.get_output(display_ch=1, round_num=under_zero))
                 if len(self.mes_input_offset) == len(self.excel.select_freq_var):
                     # save excel dialog open
-                    self.inst_source.set_output_agilent(on_off=False)  # set source off
+                    self.inst_source.set_output(on_off=False)  # set source off
                     pg.alert(text="Done",
                              title="Done",
                              button="확인")
                     return
-                else:
+                else:  # next freq
+                    self.atr_comp_list_0.clear()
+                    self.atr_comp_list_1.clear()
                     self.atr_index += 1
                     self.atr_seq -= 4
-        self.after_call(ms=250, func=self.offset_procedure_input)
+            else:  # not matched
+                self.atr_comp_list_0.clear()
+                self.atr_comp_list_1.clear()
+                self.atr_seq -= 3
+        self.after_call(ms=self.after_time_ms_250, func=self.offset_procedure_input)
 
     def offset_procedure_output(self):
         source_power = self.excel.output_offset_ref_power
@@ -1337,48 +1413,64 @@ class Dialog(CommonDialogVar):
         if _send_offset_o is not None:
             if _send_offset_o < 0:
                 _send_offset_o = -_send_offset_o
+        if self.atr_seq == 0:
+            self.atr_comp_list_0.clear()
+            self.atr_comp_list_1.clear()
         # 1. set instrument
         self.atr_seq += 1
         if self.atr_seq == 1:
             # 1. set instrument instance
-            self.__atr_inst_call()
+            self.__atr_inst_call(source=True, p_meter=True)
             # 2. reset var
             self._reset_output_offset_var()
         # 3. reset instrument
         elif self.atr_seq == 2:
-            self.inst_source.set_output_agilent(on_off=False)  # set source off
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # set power meter rel off
+            self.inst_source.set_output(on_off=False)  # set source off
+            self.inst_power_meter.set_rel(on_off=False)  # set power meter rel off
         # 4. set instrument
         elif self.atr_seq == 3:
-            self.inst_source.set_offset_agilent(offset=0)  # set source offset
-            self.inst_power_meter.set_offset_agilent(offset=0, ch=self.excel.power_m_probe)  # set power meter offset
+            self.inst_source.set_offset(offset=0)  # set source offset
+            self.inst_power_meter.set_offset(offset=0, ch=self.excel.power_m_probe)  # set power meter offset
         elif self.atr_seq == 4:
-            self.inst_source.set_dbm_agilent(dbm=source_power)  # set dBm
+            self.inst_source.set_dbm(dbm=source_power)  # set dBm
         elif self.atr_seq == 5:
-            self.inst_source.set_output_agilent(on_off=True)  # set source on
+            self.inst_source.set_output(on_off=True)  # set source on
         elif self.atr_seq == 6:
-            self.inst_source.set_freq_agilent(freq=_send_freq)  # set source frequency
-            self.inst_power_meter.set_freq_agilent(freq=_send_freq, ch=self.excel.power_m_probe)  # set power_m freq
+            self.inst_source.set_freq(freq=_send_freq)  # set source frequency
+            self.inst_power_meter.set_freq(freq=_send_freq, ch=self.excel.power_m_probe)  # set power_m freq
         elif self.atr_seq == 7:
-            self.atr_compare_0 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
-        elif self.atr_seq == 8:
-            self.atr_compare_1 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
-        elif self.atr_seq == 9:
-            if abs(self.atr_compare_0 - self.atr_compare_1) > 1e-9:
-                self.atr_seq -= 3
+            self.atr_comp_list_0.append(self.inst_power_meter.get_output(display_ch=1, round_num=2))
+            if len(self.atr_comp_list_0) == self.atr_comp_sampling:
+                pass
             else:
+                self.atr_seq -= 1
+        elif self.atr_seq == 8:
+            self.atr_comp_list_1.append(self.inst_power_meter.get_output(display_ch=1, round_num=2))
+            if len(self.atr_comp_list_1) == self.atr_comp_sampling:
+                pass
+            else:
+                self.atr_seq -= 1
+        elif self.atr_seq == 9:
+            if self.atr_comp_list_0 == self.atr_comp_list_1:
                 self.mes_output_offset.append(round(self.inst_power_meter.get_output(display_ch=1, round_num=under_zero)
-                                              + self.excel.output_offset_ref_power, 2))
+                                              - self.excel.output_offset_ref_power, 2))
                 if len(self.mes_output_offset) == len(self.excel.select_freq_var):
-                    self.inst_source.set_output_agilent(on_off=False)  # set source off
+                    # save excel dialog open
+                    self.inst_source.set_output(on_off=False)  # set source off
                     pg.alert(text="Done",
                              title="Done",
                              button="확인")
                     return
-                else:
+                else:  # next freq
+                    self.atr_comp_list_0.clear()
+                    self.atr_comp_list_1.clear()
                     self.atr_index += 1
                     self.atr_seq -= 4
-        self.after_call(ms=250, func=self.offset_procedure_output)
+            else:  # not matched
+                self.atr_comp_list_0.clear()
+                self.atr_comp_list_1.clear()
+                self.atr_seq -= 3
+        self.after_call(ms=self.after_time_ms_250, func=self.offset_procedure_output)
 
     # input offset False -> output offset
     def offset_start(self, input_offset=True):
@@ -1425,59 +1517,57 @@ class Dialog(CommonDialogVar):
         self.atr_seq += 1
         if self.atr_seq == 1:
             # 1. set instrument instance
-            self.__atr_inst_call()
+            self.__atr_inst_call(source=True, p_meter=True, power=True)
             # 2. reset atr var
             self._reset_atr_var()
         elif self.atr_seq == 2:  # set config_0
-            self.inst_source.set_output_agilent(on_off=False)  # turn off source
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # reference off
-            # test for power except
+            self.inst_source.set_output(on_off=False)  # turn off source
+            self.inst_power_meter.set_rel(on_off=False)  # reference off
             self.inst_power.set_output_hp_6x74a(on_off=False)  # turn off power
 
         elif self.atr_seq == 3:  # set config_1
             self.inst_power.set_voltage_hp_6x74a(voltage=self.excel.power_voltage_var)  # power voltage set
             self.dialog_var_set(var_name="atr_power_voltage", value=self.excel.power_voltage_var)  # set dialog var
-            self.inst_source.set_freq_agilent(freq=_send_freq)  # set frequency
-            self.inst_power_meter.set_freq_agilent(freq=_send_freq)  # set frequency
+            self.inst_source.set_freq(freq=_send_freq)  # set frequency
+            self.inst_power_meter.set_freq(freq=_send_freq)  # set frequency
             self.dialog_var_set(var_name="atr_freq", value=_send_freq)  # set dialog var
         elif self.atr_seq == 4:  # set config_2
             self.inst_power.set_current_hp_6x74a(current=self.excel.power_cur_var)  # power current set
-            self.dialog_var_set(var_name="atr_power_current", value=self.excel.power_cur_var)  # set dialog var
-            self.inst_source.set_offset_agilent(offset=_send_offset_i)  # set offset
-            self.inst_power_meter.set_offset_agilent(offset=_send_offset_o, ch=self.excel.power_m_probe)  # set loss
+            self.dialog_var_set(var_name="atr_power_current", value=self.excel.power_current_var)  # set dialog var
+            self.inst_source.set_offset(offset=_send_offset_i)  # set offset
+            self.inst_power_meter.set_offset(offset=_send_offset_o, ch=self.excel.power_m_probe)  # set loss
             self.dialog_var_set(var_name="atr_input_offset", value=_send_offset_i)  # set dialog var
             self.dialog_var_set(var_name="atr_output_offset", value=_send_offset_o)  # set dialog var
         elif self.atr_seq == 5:  # set config_3
-            self.inst_source.set_dbm_agilent(self.excel.atr_start_input_var)  # set dBm
+            self.inst_source.set_dbm(self.excel.atr_start_input_var)  # set dBm
             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.atr_start_input_var)  # set dialog var
         elif self.atr_seq == 6:  # release_0
-            # test for power except
             self.inst_power.set_output_hp_6x74a(on_off=True)  # turn on power
 
         elif self.atr_seq == 7:  # release_1
-            self.inst_source.set_output_agilent(on_off=True)  # turn on rf state
+            self.inst_source.set_output(on_off=True)  # turn on rf state
         else:
             self.atr_seq = 0
-            self.after_call(ms=250, func=self.aging)
+            self.after_call(ms=self.after_time_ms_250, func=self.aging)
             return
-        self.after_call(ms=250, func=self.atr_ready)
+        self.after_call(ms=self.after_time_ms_250, func=self.atr_ready)
 
     def aging(self):
         if int(self.excel.aging_left_var) > 0:
             self.atr_seq += 1
             if self.atr_seq == 1:
-                self.inst_source.set_dbm_agilent(dbm=self.excel.atr_start_input_var)  # set dBm
+                self.inst_source.set_dbm(dbm=self.excel.atr_start_input_var)  # set dBm
                 self.atr_input_input = self.excel.atr_start_input_var
                 self.dialog_var_set(var_name="atr_rf_input", value=self.excel.atr_start_input_var)
-                self.after_call(ms=250, func=self.aging)
+                self.after_call(ms=self.after_time_ms_250, func=self.aging)
             elif self.atr_seq == 2:
                 self.atr_compare_0 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
                 self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_0)
-                self.after_call(ms=250, func=self.aging)
+                self.after_call(ms=self.after_time_ms_250, func=self.aging)
             elif self.atr_seq == 3:
                 self.atr_compare_1 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
                 self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_1)
-                self.after_call(ms=250, func=self.aging)
+                self.after_call(ms=self.after_time_ms_250, func=self.aging)
             # 4. input get
             elif self.atr_seq == 4:
                 if abs(self.atr_compare_0 - self.atr_compare_1) > 1e-9:
@@ -1487,29 +1577,28 @@ class Dialog(CommonDialogVar):
                         _output_now=self.atr_compare_0, _output_goal=self.excel.pout_var)
                     if self.adder is not None:
                         if self.adder != 0:
-                            self.excel.aging_left_var = self.excel.aging_var
                             self.atr_input_input += self.adder
                             if self.atr_input_input <= self.excel.p_sat_input_var:
-                                self.inst_source.set_dbm_agilent(dbm=self.atr_input_input)  # new input set
+                                self.inst_source.set_dbm(dbm=self.atr_input_input)  # new input set
                                 self.atr_seq -= 3
                                 self.dialog_var_set(var_name="atr_rf_input", value=self.atr_input_input)
-                                self.after_call(ms=250, func=self.aging)
+                                self.after_call(ms=self.after_time_ms_250, func=self.aging)
                             else:
                                 print("p input set over range")
                                 return
                         else:
                             self.atr_seq -= 3
                             # set dialog var
-                            self.excel.aging_left_var -= 1  # 1sec decrease
                             self.dialog_var_set(var_name="aging_time_left", value=self.excel.aging_left_var)
-                            self.after_call(ms=500, func=self.aging)
+                            self.after_call(ms=self.after_time_ms_500, func=self.aging)
+                        self.excel.aging_left_var -= 1  # 1sec decrease
                     else:
                         print("adder error")
                         return
         else:
             print("aging left is 0 or less")
             self.atr_seq = 0
-            self.after_call(ms=250, func=self.atr_start)
+            self.after_call(ms=self.after_time_ms_250, func=self.atr_start)
 
     def atr_start(self):
         # 0 atr index check
@@ -1541,27 +1630,27 @@ class Dialog(CommonDialogVar):
             return
         # 2. set instrument default
         if self.atr_seq == 0:
-            self.inst_source.set_output_agilent(on_off=False)  # turn off rf state
+            self.inst_source.set_output(on_off=False)  # turn off rf state
         # 3. p1 ready
         elif self.atr_seq == 1:
-            self.inst_source.set_freq_agilent(freq=_send_freq)  # set frequency
-            self.inst_power_meter.set_freq_agilent(ch=self.excel.power_m_probe, freq=_send_freq)
+            self.inst_source.set_freq(freq=_send_freq)  # set frequency
+            self.inst_power_meter.set_freq(ch=self.excel.power_m_probe, freq=_send_freq)
             self.dialog_var_set(var_name="atr_freq", value=_send_freq)  # set dialog var
         elif self.atr_seq == 2:
-            self.inst_source.set_offset_agilent(offset=_send_offset_in)  # set offset
-            self.inst_power_meter.set_offset_agilent(offset=_send_offset_out, ch=self.excel.power_m_probe)  # set loss
+            self.inst_source.set_offset(offset=_send_offset_in)  # set offset
+            self.inst_power_meter.set_offset(offset=_send_offset_out, ch=self.excel.power_m_probe)  # set loss
             self.dialog_var_set(var_name="atr_input_offset", value=_send_offset_in)  # set dialog var
             self.dialog_var_set(var_name="atr_output_offset", value=_send_offset_out)  # set dialog var
         elif self.atr_seq == 3:
-            self.inst_source.set_dbm_agilent(dbm=self.excel.atr_start_input_var)  # set dBm
+            self.inst_source.set_dbm(dbm=self.excel.atr_start_input_var)  # set dBm
             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.atr_start_input_var)
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # reference off
+            self.inst_power_meter.set_rel(on_off=False)  # reference off
         elif self.atr_seq == 4:
-            self.inst_source.set_output_agilent(on_off=True)  # turn on rf state
+            self.inst_source.set_output(on_off=True)  # turn on rf state
         elif self.atr_seq == 5:
-            self.inst_power_meter.set_rel_agilent(on_off=True)  # reference on
+            self.inst_power_meter.set_rel(on_off=True)  # reference on
             self.atr_p1_ref_input = 0
-        # 2. p1 get
+        # 4. p1 get
         elif self.atr_seq == 6:
             self.atr_compare_0 = self.inst_power_meter.get_rel(display_ch=1, round_num=2)
             self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_0)
@@ -1580,20 +1669,20 @@ class Dialog(CommonDialogVar):
                         self.atr_p1_ref_input += self.adder
                         send_var = self.excel.atr_start_input_var + self.atr_p1_ref_input
                         if send_var <= self.excel.p_sat_input_var:
-                            self.inst_source.set_dbm_agilent(dbm=send_var)  # new input set
+                            self.inst_source.set_dbm(dbm=send_var)  # new input set
                             self.dialog_var_set(var_name="atr_rf_input", value=send_var)
                             self.atr_seq -= 3
                         else:
                             print("p1 input set over range")
-                            self.inst_source.set_dbm_agilent(dbm=self.excel.atr_start_input_var)  # default input set
+                            self.inst_source.set_dbm(dbm=self.excel.atr_start_input_var)  # default input set
                             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.atr_start_input_var)
                             return
                     else:
                         self.atr_p1_var.append(send_var)
-                        self.inst_power_meter.set_rel_agilent(on_off=False)  # reference off
-        # 3. input ready
+                        self.inst_power_meter.set_rel(on_off=False)  # reference off
+        # 5. input ready
         elif self.atr_seq == 9:
-            self.inst_source.set_dbm_agilent(dbm=self.excel.atr_start_input_var)  # set dBm
+            self.inst_source.set_dbm(dbm=self.excel.atr_start_input_var)  # set dBm
             self.atr_input_input = self.excel.atr_start_input_var
             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.atr_start_input_var)
         elif self.atr_seq == 10:
@@ -1602,7 +1691,7 @@ class Dialog(CommonDialogVar):
         elif self.atr_seq == 11:
             self.atr_compare_1 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
             self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_1)
-        # 4. input get
+        # 6. input get
         elif self.atr_seq == 12:
             if abs(self.atr_compare_0 - self.atr_compare_1) > 1e-9:
                 self.atr_seq -= 3
@@ -1612,7 +1701,7 @@ class Dialog(CommonDialogVar):
                     if self.adder != 0:
                         self.atr_input_input += self.adder
                         if self.atr_input_input <= self.excel.p_sat_input_var:
-                            self.inst_source.set_dbm_agilent(self.atr_input_input)  # new input set
+                            self.inst_source.set_dbm(self.atr_input_input)  # new input set
                             self.dialog_var_set(var_name="atr_rf_input", value=self.atr_input_input)
                             self.atr_seq -= 3
                         else:
@@ -1626,11 +1715,11 @@ class Dialog(CommonDialogVar):
                 else:
                     print("input adder error")
                     return
-        # 5. p_sat ready
+        # 7. p_sat ready
         elif self.atr_seq == 13:
-            self.inst_source.set_dbm_agilent(dbm=self.excel.p_sat_input_var)  # set p_sat input dBm
+            self.inst_source.set_dbm(dbm=self.excel.p_sat_input_var)  # set p_sat input dBm
             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.p_sat_input_var)
-        # 6. p_sat get
+        # 8. p_sat get
         elif self.atr_seq == 14:
             self.atr_compare_0 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
             self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_0)
@@ -1642,16 +1731,15 @@ class Dialog(CommonDialogVar):
                 self.atr_seq -= 3
             else:
                 self.atr_p_sat_var.append(self.atr_compare_0)
-                # test for power except
                 # load curr from instrument
                 _current = self.inst_power.get_current_hp_6x74a(round_num=2)
                 self.atr_p_sat_curr_var.append(_current)
                 self.dialog_var_set(var_name="atr_power_current", value=_current)
-        # 7. ready overdrive
+        # 9. ready overdrive
         elif self.atr_seq == 17:
-            self.inst_source.set_dbm_agilent(dbm=self.excel.overdrive_input_var)
+            self.inst_source.set_dbm(dbm=self.excel.overdrive_input_var)
             self.dialog_var_set(var_name="atr_rf_input", value=self.excel.overdrive_input_var)
-        # 8. get overdrive
+        # 10. get overdrive
         elif self.atr_seq == 18:
             self.atr_compare_0 = self.inst_power_meter.get_output(display_ch=1, round_num=2)
             self.dialog_var_set(var_name="atr_rf_output", value=self.atr_compare_0)
@@ -1663,7 +1751,6 @@ class Dialog(CommonDialogVar):
                 self.atr_seq -= 3
             else:
                 self.atr_overdrive_var.append(self.atr_compare_0)
-                # test for power except
                 _current = self.inst_power.get_current_hp_6x74a(round_num=2)
                 self.atr_overdrive_curr_var.append(_current)
                 self.dialog_var_set(var_name="atr_power_current", value=_current)
@@ -1671,40 +1758,40 @@ class Dialog(CommonDialogVar):
             if self.atr_index >= len(self.excel.select_freq_var) - 1:
                 print("atr start end")
                 self.atr_seq = 0
-                self.after_call(ms=500, func=self.atr_end)
+                self.after_call(ms=self.after_time_ms_500, func=self.atr_end)
                 return
             else:
                 self.atr_seq = -1  # go to atr_seq == 0
+                # 11. atr index increase
                 self.atr_index += 1
         else:
             print("unknown sequence number")
             return
-        # 10. atr_seq increase
+        # 12. atr_seq increase
         self.atr_seq += 1
-        # 11. groot after set
-        self.after_call(ms=250, func=self.atr_start)
+        # 13. groot after set
+        self.after_call(ms=self.after_time_ms_250, func=self.atr_start)
 
     def atr_end(self):
         # 1. reset instrument
         if self.atr_seq == 0:
-            # test for power except
             self.inst_power.set_output_hp_6x74a(on_off=False)  # turn off power
         elif self.atr_seq == 1:
-            self.inst_source.set_output_agilent(on_off=False)  # turn off rf state
+            self.inst_source.set_output(on_off=False)  # turn off rf state
         elif self.atr_seq == 2:
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # reference off
+            self.inst_power_meter.set_rel(on_off=False)  # reference off
         else:
             print("atr end end")
             return
         self.atr_seq += 1
-        self.after_call(ms=250, func=self.atr_end)
+        self.after_call(ms=self.after_time_ms_250, func=self.atr_end)
 
     def after_call(self, func=None, ms=250):
         if self.atr_stop:
             self.atr_stop = False
             self.inst_power.set_output_hp_6x74a(on_off=False)  # turn off power
-            self.inst_source.set_output_agilent(on_off=False)  # turn off rf state
-            self.inst_power_meter.set_rel_agilent(on_off=False)  # reference off
+            self.inst_source.set_output(on_off=False)  # turn off rf state
+            self.inst_power_meter.set_rel(on_off=False)  # reference off
             pg.alert(text="ATR Stop called\n",
                      title="Stop",
                      button="확인")
@@ -1782,29 +1869,6 @@ class Dialog(CommonDialogVar):
         text += "\n"
         return text
 
-    def atr_display_clicked(self):
-        names = ["frequency", "p1", "input dBm", "input watt", "input current",
-                 "p_sat dBm", "p_sat watt", "p_sat current", "overdrive dBm", "overdrive watt",
-                 "overdrive current"]
-        units = ["Hz", "dBm", "dBm", "W", "A",
-                 "dBm", "W", "A", "dBm", "W",
-                 "A"]
-        if len(self.excel.select_freq_var) != len(self.atr_p1_var):
-            pg.alert(text="Nothing to display",
-                     title="Display",
-                     button="확인")
-        else:
-            text = ""
-            pg.alert(text=text,
-                     title="Display",
-                     button="확인")
-
-    def atr_sys_opt_clicked(self):
-        if self.atr_system_option:
-            self.atr_system_option = False
-        else:
-            self.atr_system_option = True
-
     def load_file_dialog(self):
         dir_path = fd.askopenfilename(parent=self.g_root,
                                       initialdir=os.getcwd(),
@@ -1869,7 +1933,6 @@ class Dialog(CommonDialogVar):
             names = ["frequency", "input offset", "output offset"]
         else:
             print("unknown save option error")
-
         self.excel.w_wb = Workbook()
         self.excel.w_ws_list.append(self.excel.w_wb.create_sheet("OFFSET"))
         self.excel.w_ws_list[0] = self.excel.w_wb.active
@@ -1897,7 +1960,7 @@ class Dialog(CommonDialogVar):
                 self.save_excel_loop_col(var_s=self.mes_output_offset, column=__column, row=offset_row_0)
             elif _id == self.atr_save_all_offset_id:
                 self.save_excel_loop_col(var_s=self.mes_input_offset, column=__column, row=offset_row_0)
-                self.save_excel_loop_col(var_s=self.mes_input_offset, column=__column, row=offset_row_1)
+                self.save_excel_loop_col(var_s=self.mes_output_offset, column=__column, row=offset_row_1)
 
         self.excel.w_wb.save(save_path)
 
@@ -1920,13 +1983,13 @@ class Dialog(CommonDialogVar):
         print(self.atr_overdrive_curr_var)
 
         # test
-        self.atr_p1_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 41]
-        self.atr_input_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 44]
-        self.atr_input_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 47]
-        self.atr_p_sat_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 50]
-        self.atr_p_sat_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 53]
-        self.atr_overdrive_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 56]
-        self.atr_overdrive_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 59]
+        # self.atr_p1_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 41]
+        # self.atr_input_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 44]
+        # self.atr_input_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 47]
+        # self.atr_p_sat_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 50]
+        # self.atr_p_sat_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 53]
+        # self.atr_overdrive_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 56]
+        # self.atr_overdrive_curr_var = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 59]
 
         if self.excel.save_hor is True:
             freq_row = 1
@@ -2031,39 +2094,46 @@ class Dialog(CommonDialogVar):
             else:
                 print("error input, output offset call")
 
-    def __atr_inst_call(self):
-        self.inst_source = Instrument.Source()
-        self.inst_power = Instrument.PowerSupply()
-        self.inst_power_meter = Instrument.PowerMeter()
-        # source open
-        if self.excel.source_comm_option == "GPIB":
-            self.inst_source.gpib_address = self.excel.source_com_var
-            self.inst_source.open_instrument_gpib(gpib_address=self.inst_source.gpib_address)
-        elif self.excel.source_comm_option == "USB":
+    def __atr_inst_call(self, source=False, power=False, p_meter=False, spectrum=False, network=False):
+        if source is True:
+            self.inst_source = Instrument.Source()
+            # source open
+            if self.excel.source_comm_option == "GPIB":
+                self.inst_source.gpib_address = self.excel.source_com_var
+                self.inst_source.open_instrument_gpib(gpib_address=self.inst_source.gpib_address)
+            elif self.excel.source_comm_option == "USB":
+                pass
+            elif self.excel.source_comm_option == "SERIAL":
+                pass
+        if power is True:
+            self.inst_power = Instrument.PowerSupply()
+            # power supply open
+            if self.excel.power_comm_option == "GPIB":
+                self.inst_power.gpib_address = self.excel.power_com_var
+                self.inst_power.open_instrument_gpib(gpib_address=self.inst_power.gpib_address)
+            elif self.excel.power_comm_option == "USB":
+                pass
+            elif self.excel.power_comm_option == "SERIAL":
+                pass
+        if p_meter is True:
+            self.inst_power_meter = Instrument.PowerMeter()
+            # power meter open
+            if self.excel.power_meter_comm_option == "GPIB":
+                self.inst_power_meter.gpib_address = self.excel.power_meter_com_var
+                self.inst_power_meter.open_instrument_gpib(gpib_address=self.inst_power_meter.gpib_address)
+            elif self.excel.power_meter_comm_option == "USB":
+                pass
+            elif self.excel.power_meter_comm_option == "SERIAL":
+                pass
+        if spectrum is True:
+            print("not done spectrum")
             pass
-        elif self.excel.source_comm_option == "SERIAL":
-            pass
-        # power supply open
-        if self.excel.power_comm_option == "GPIB":
-            self.inst_power.gpib_address = self.excel.power_com_var
-            # test for power except
-            self.inst_power.open_instrument_gpib(gpib_address=self.inst_power.gpib_address)
-        elif self.excel.power_comm_option == "USB":
-            pass
-        elif self.excel.power_comm_option == "SERIAL":
-            pass
-        # power meter open
-        if self.excel.power_meter_comm_option == "GPIB":
-            self.inst_power_meter.gpib_address = self.excel.power_meter_com_var
-            self.inst_power_meter.open_instrument_gpib(gpib_address=self.inst_power_meter.gpib_address)
-        elif self.excel.power_meter_comm_option == "USB":
-            pass
-        elif self.excel.power_meter_comm_option == "SERIAL":
+        if network is True:
+            print("not done network")
             pass
 
     def __atr_get_idn(self):
         print(self.inst_source.query_instrument("*IDN?"))
-        # test for power except
         print(self.inst_power.query_instrument("*IDN?"))
         print(self.inst_power_meter.query_instrument("*IDN?"))
 

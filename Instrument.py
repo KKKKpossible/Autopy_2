@@ -120,6 +120,12 @@ class PowerMeter(Instrument):
         elif self.anritsu is True:
             pass
 
+    def set_offset_state(self, state, ch):
+        if self.agilent is True:
+            self.set_offset_state_agilent(state=state, ch=ch)
+        elif self.anritsu is True:
+            pass
+
     def set_rel_agilent(self, on_off):
         if on_off:
             self.write_instrument(command="CALC:REL:AUTO ONCE")
@@ -133,7 +139,15 @@ class PowerMeter(Instrument):
         self.frequency = freq
 
     def set_offset_agilent(self, offset, ch=1):
-        self.write_instrument(command="SENS{0}:CORR:LOSS{1} -{2}DB".format(ch, ch, offset))
+        self.write_instrument(command="SENS{0}:CORR:LOSS2 -{1}DB".format(ch, offset))  # LOSS1은 cal 에 사용된다고함
+
+    def set_offset_state_agilent(self, state, ch):
+        if state is True:
+            self.write_instrument(command="SENS{0}:CORR:LOSS2 ON".format(ch))
+        elif state is False:
+            self.write_instrument(command="SENS{0}:CORR:LOSS2 OFF".format(ch))
+        else:
+            print("unknown state in set offset state agilent")
 
     def get_output(self, display_ch=1, round_num=2):
         if self.agilent is True:
@@ -270,11 +284,29 @@ class Source(Instrument):
         self.write_instrument(command="LOS -{0} DB".format(offset))
         self._offset = offset
 
-    def set_offset_on_anritsu(self):
-        self.write_instrument(command="LO1")
+    def set_offset_state(self, state):
+        if self.agilent is True:
+            self.set_offset_state_agilent(state=state)
+        else:
+            self.set_offset_state_anritsu(state=state)
 
-    def set_offset_off_anritsu(self):
-        self.write_instrument(command="LO0")
+    @staticmethod
+    def set_offset_state_agilent(state):
+        # if state is True:
+        #     self.write_instrument(command="POW:OFFS:STAT ON")
+        # elif state is False:
+        #     self.write_instrument(command="POW:OFFS:STAT OFF")
+        # else:
+        #     print("unknown state_ set offset state agilent")
+        print("agilent source doesn't have offset state command")
+
+    def set_offset_state_anritsu(self, state):
+        if state is True:
+            self.write_instrument(command="LO1")
+        elif state is False:
+            self.write_instrument(command="LO0")
+        else:
+            print("unknown state_ set offset state anritsu")
 
     def set_dbm_anritsu(self, dbm):
         self.write_instrument(command="L0 {0} DM".format(dbm))

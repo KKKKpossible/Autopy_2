@@ -15,6 +15,8 @@ class Instrument:
         self.test_except = False
         self.anritsu = False
         self.agilent = False
+        self.hp = False
+        self.thandar = False
 
     def open_instrument_gpib(self, gpib_address):
         if self.test_except:
@@ -26,9 +28,23 @@ class Instrument:
             if checker.find("ANRITSU") != -1:
                 self.anritsu = True
                 self.agilent = False
+                self.hp = False
+                self.thandar = False
             elif checker.find("Agilent") != -1:
                 self.anritsu = False
                 self.agilent = True
+                self.hp = False
+                self.thandar = False
+            elif checker.find("HP") != -1:
+                self.anritsu = False
+                self.agilent = False
+                self.hp = True
+                self.thandar = False
+            elif checker.find("THANDAR") != -1:
+                self.anritsu = False
+                self.agilent = False
+                self.hp = False
+                self.thandar = True
 
     def __open_instrument(self, com_opt):
         if self.test_except:
@@ -101,16 +117,17 @@ class PowerMeter(Instrument):
         if self.agilent is True:
             self.set_rel_agilent(on_off=on_off)
         elif self.anritsu is True:
-            print("not done 0")
+            self.set_rel_anritsu(on_off=on_off)
         else:
             print("error 0")
 
     def set_freq(self, freq, ch=1):
         if self.agilent is True:
-            self.write_instrument("SENS{0}:FREQ {1}HZ".format(ch, freq))
+            self.set_freq_agilent(freq=freq, ch=ch)
             self.frequency = freq
         elif self.anritsu is True:
-            print("not done 1")
+            self.set_freq_anritsu(freq=freq, ch=ch)
+            self.frequency = freq
         else:
             print("error 1")
 
@@ -118,13 +135,13 @@ class PowerMeter(Instrument):
         if self.agilent is True:
             self.set_offset_agilent(offset=offset, ch=ch)
         elif self.anritsu is True:
-            pass
+            self.set_offset_anritsu(offset=offset, ch=ch)
 
     def set_offset_state(self, state, ch):
         if self.agilent is True:
             self.set_offset_state_agilent(state=state, ch=ch)
         elif self.anritsu is True:
-            pass
+            self.set_offset_state_anritsu(state=state, ch=ch)
 
     def set_rel_agilent(self, on_off):
         if on_off:
@@ -134,18 +151,41 @@ class PowerMeter(Instrument):
             self.write_instrument(command="CALC:REL:STAT OFF")
             self.rel_state = False
 
+    def set_rel_anritsu(self, on_off):
+        if on_off:
+            self.write_instrument(command="REL 1 1")
+            self.rel_state = True
+        else:
+            self.write_instrument(command="REL 1 0")
+            self.rel_state = False
+
     def set_freq_agilent(self, freq, ch=1):
         self.write_instrument("SENS{0}:FREQ {1}HZ".format(ch, freq))
         self.frequency = freq
 
+    def set_freq_anritsu(self, freq, ch=1):
+        self.write_instrument("CFFRQ A, {0}HZ".format(freq))  # A = config A, 이모델에서 config B는 사용하지 않는듯
+        self.frequency = freq
+
     def set_offset_agilent(self, offset, ch=1):
-        self.write_instrument(command="SENS{0}:CORR:LOSS2 -{1}DB".format(ch, offset))  # LOSS1은 cal 에 사용된다고함
+        self.write_instrument(command="SENS{0}:CORR:LOSS2 {1}DB".format(ch, offset))  # LOSS1은 cal 에 사용된다고함
+
+    def set_offset_anritsu(self, offset, ch=1):
+        self.write_instrument(command="OFFFIX A, {0}DB".format(offset))  # anritsu 24버전은 config A 만 존재
 
     def set_offset_state_agilent(self, state, ch):
         if state is True:
-            self.write_instrument(command="SENS{0}:CORR:LOSS2 ON".format(ch))
+            self.write_instrument(command="SENS{0}:CORR:LOSS2:STAT ON".format(ch))
         elif state is False:
-            self.write_instrument(command="SENS{0}:CORR:LOSS2 OFF".format(ch))
+            self.write_instrument(command="SENS{0}:CORR:LOSS2:STAT OFF".format(ch))
+        else:
+            print("unknown state in set offset state agilent")
+
+    def set_offset_state_anritsu(self, state, ch):
+        if state is True:
+            self.write_instrument(command="OFFTYP A, FIXED")
+        elif state is False:
+            self.write_instrument(command="OFFTYP A, OFF")
         else:
             print("unknown state in set offset state agilent")
 
@@ -153,20 +193,23 @@ class PowerMeter(Instrument):
         if self.agilent is True:
             return self.get_output_agilent(display_ch=display_ch, round_num=round_num)
         elif self.anritsu is True:
-            print("not done 2")
+            return self.get_output_anritsu(display_ch=display_ch, round_num=round_num)
         else:
             print("error 2")
 
     def get_rel(self, display_ch=1, round_num=2):
         if self.agilent is True:
             return self.get_rel_agilent(display_ch=display_ch, round_num=round_num)
-        elif self.anritsu is True:
-            print("not done 3")
+        elif self.anritsu is True:  # anritsu 는 rel read 가 따로 없다.
+            return self.get_output_anritsu(display_ch=display_ch, round_num=round_num)
         else:
             print("error 3")
 
     def get_output_agilent(self, display_ch=1, round_num=2):
         return round(float(self.query_instrument("FETC{0}?".format(display_ch))), round_num)
+
+    def get_output_anritsu(self, display_ch=1, round_num=2):
+        return round(float(self.query_instrument("O {0}?".format(display_ch))), round_num)
 
     def get_rel_agilent(self, display_ch=1, round_num=2):
         return round(float(self.query_instrument("FETC{0}:REL?".format(display_ch))), round_num)
@@ -179,7 +222,24 @@ class PowerSupply(Instrument):
         self._voltage_set = 0.0
         self._current_set = 0.0
         self._output_state = False
-        self.test_except = True
+        self.test_except = False
+
+    def set_output(self, on_off, ch=1):
+        if self.hp is True:
+            self.set_output_hp_6x74a(on_off=on_off)
+        elif self.thandar is True:
+            self.set_output_thandar_cpx400dp(on_off=on_off, ch=ch)
+
+    def set_output_thandar_cpx400dp(self, on_off, ch=1):
+        if self.test_except:
+            pass
+        else:
+            if on_off:
+                self.write_instrument(command="OP{0} {1}".format(ch, 1))  # turn off power
+                self._output_state = True
+            else:
+                self.write_instrument(command="OP{0} {1}".format(ch, 0))  # turn off power
+                self._output_state = False
 
     def set_output_hp_6x74a(self, on_off):
         if self.test_except:
@@ -192,12 +252,31 @@ class PowerSupply(Instrument):
                 self.write_instrument(command="OUTP OFF")  # turn off power
                 self._output_state = False
 
+    def set_voltage(self, voltage, ch=1):
+        if self.hp is True:
+            self.set_voltage_hp_6x74a(voltage=voltage)
+        elif self.thandar is True:
+            self.set_voltage_thandar_cpx400dp(voltage=voltage, ch=ch)
+
     def set_voltage_hp_6x74a(self, voltage):
         if self.test_except:
             pass
         else:
             self.write_instrument(command="VOLT:LEV {0}".format(voltage))
             self._voltage_set = voltage
+
+    def set_voltage_thandar_cpx400dp(self, voltage, ch=1):
+        if self.test_except:
+            pass
+        else:
+            self.write_instrument(command="V{0} {1}".format(ch, voltage))
+            self._voltage_set = voltage
+
+    def set_current(self, current, ch=1):
+        if self.hp is True:
+            self.set_current_hp_6x74a(current=current)
+        elif self.thandar is True:
+            self.set_current_thandar_cpx400dp(current=current, ch=ch)
 
     def set_current_hp_6x74a(self, current):
         if self.test_except:
@@ -206,11 +285,31 @@ class PowerSupply(Instrument):
             self.write_instrument(command="CURR:LEV {0}".format(current))
             self._current_set = current
 
+    def set_current_thandar_cpx400dp(self, current, ch=1):
+        if self.test_except:
+            pass
+        else:
+            self.write_instrument(command="I{0} {1}".format(ch, current))
+            self._current_set = current
+
+    def get_current(self, round_num=2, ch=1):
+        if self.hp is True:
+            return self.get_current_hp_6x74a(round_num=round_num)
+        elif self.thandar is True:
+            return self.get_current_thandar_cpx400dp(round_num=round_num, ch=ch)
+
     def get_current_hp_6x74a(self, round_num=2):
         if self.test_except:
             return -1667
         else:
             return round(float(self.query_instrument(command="MEAS:CURR?")), round_num)
+
+    def get_current_thandar_cpx400dp(self, round_num=2, ch=1):
+        if self.test_except:
+            return -1667
+        else:
+            ret = self.query_instrument(command="I{0}O?".format(ch))
+            return round(float(ret.split("A")[0]), round_num)
 
 
 class Source(Instrument):
@@ -261,7 +360,7 @@ class Source(Instrument):
         self._frequency = freq
 
     def set_offset_agilent(self, offset):
-        self.write_instrument(command="POW:OFFS -{0} DB".format(offset))
+        self.write_instrument(command="POW:OFFS {0} DB".format(offset))
         self._offset = offset
 
     def set_dbm_agilent(self, dbm):
@@ -281,7 +380,7 @@ class Source(Instrument):
         self._frequency = freq
 
     def set_offset_anritsu(self, offset):
-        self.write_instrument(command="LOS -{0} DB".format(offset))
+        self.write_instrument(command="LOS {0} DB".format(offset))
         self._offset = offset
 
     def set_offset_state(self, state):
@@ -324,13 +423,62 @@ class Network(Instrument):
 
 
 if __name__ == "__main__":
+    # rm = pyvisa.ResourceManager()
+    # for var in rm.list_resources():
+    #     print(var)
+    test = PowerSupply()
+    test.open_instrument_gpib(gpib_address="11")
+    test.set_output(on_off=False, ch=1)
+    test.set_output(on_off=False, ch=2)
+    print(test.query_instrument(command="OCP1?"))
+    # test.set_voltage(voltage=1.23, ch=1)
+    # test.set_voltage(voltage=1.23, ch=2)
+    # test.set_current(current=1.23, ch=1)
+    # test.set_current(current=1.23, ch=2)
+    # test.set_output(on_off=False, ch=1)
+    # test.set_output(on_off=False, ch=2)
+    # print(test.get_current(ch=1))
+    # print(test.get_current(ch=2))
+    # test.set_output(on_off=False, ch=1)
+    # test.set_output(on_off=False, ch=2)
+    # print(test.get_current(ch=1))
+    # print(test.get_current(ch=2))
+
     # test = PowerMeter()
     # test.open_instrument_gpib(gpib_address="13")
-    # test.query_instrument(command="*IDN?")
+    # print(test.query_instrument(command="*idn?"))
+    # print(test.query_instrument(command="CHCFG? 1"))  # return sent ch's config(1번채널은 config A 또는 B이다)
+    # print(test.query_instrument(command="CHCFG? 2"))  # return sent ch's config(1번채널은 config A 또는 B이다)
+    # print(test.query_instrument(command="CHUNIT? 1"))  # return ch unit
+    # print(test.query_instrument(command="CHUNIT? 2"))  # return ch unit ch가 위아래 화면이네
+    # print(test.write_instrument(command="DISP OFF"))  # return ch config, channel
+    # print(test.write_instrument(command="DISP ON"))  # return ch config, channel
+    # print(test.write_instrument(command="FROFF ON"))  # 화면에 frequency, offset 이 출력된다.
+    #
+    # print(test.query_instrument(command="O 1"))  # 출력을 읽는것
+    # print(test.query_instrument(command="OFFFIX? A"))  # OFFSET config A의 offset 을 읽는것 24모델은 config A 만 존재하는듯
+    # test.write_instrument(command="OFFFIX A, -10")
+    # print(test.query_instrument(command="OFFFIX? A"))  # OFFSET config A의 offset 을 읽는것 24모델은 config A 만 존재하는듯
+    #
+    # print(test.query_instrument(command="OFFVAL A"))  # offfix의 뒤에 나오는 값을 그대로 출력해줌
+    # print(test.query_instrument(command="OFFTYP? A"))  # Offset settting
+    # print(test.write_instrument(command="OFFTYP A,OFF"))  # Offset settting
+    # print(test.write_instrument(command="OFFTYP A,FIXED"))  # Offset settting
+    # print(test.query_instrument(command="OFFTYP? A"))  # Offset settting
+    #
+    # print("before rel on = {0}".format(test.query_instrument(command="O 1")))  # 출력을 읽는것
+    # print(test.write_instrument(command="REL 1, 1"))  # Offset settting
+    # print("after rel on = {0}".format(test.query_instrument(command="O 1")))  # 출력을 읽는것
+    # print(test.write_instrument(command="REL 1, 0"))  # Offset settting
+    # print("after rel off = {0}".format(test.query_instrument(command="O 1")))  # 출력을 읽는것
+    # print(test.query_instrument(command="CFFRQ? A"))  # Offset settting
+    # print(test.write_instrument(command="CFFRQ A, 25000000000HZ"))  # Offset settting
+    # print(test.query_instrument(command="CFFRQ? A"))  # Offset settting
 
-    test = PowerMeter()
-    test.open_instrument_gpib("13")
-    print(test.get_rel())
+
+    # test = PowerMeter()
+    # test.open_instrument_gpib("13")
+    # print(test.get_rel())
 
     # power supply test
     # test.write_instrument(command="*IDN?")

@@ -2,24 +2,32 @@ def get_p1_adder(_out_ref, _input_ref):
     _key_adder = 0
     compare = _out_ref + 1 - _input_ref
 
-    if compare > 0.5 + 1e-9:  # over 0.5
+    if compare > 1.0 + 1e-9:  # over 1
+        _key_adder = 2  # 1
+    elif compare > 0.5 + 1e-9:  # over 0.5
         _key_adder = 1  # 1
     elif compare > 0.25 + 1e-9:  # 0.25 ~ 0.5
         _key_adder = 0.5  # 0.2
     elif compare > 0.1 + 1e-9:  # 0.1 ~ 0.25
+        _key_adder = 0.2  # 0.1
+    elif compare > 0.01 + 1e-9:  # 0.01 ~ 0.1
         _key_adder = 0.1  # 0.1
     elif compare > 0:  # 0 ~ 0.01
         _key_adder = 0  # 0
     elif compare == 0:  # 0
         _key_adder = 0  # 0
-    elif compare > -0.1 + 1e-9:  # -0.1 ~ -0.01
+    elif compare > -0.01 + 1e-9:  # -0.01 ~ 0
         _key_adder = -0.1  # -0.1
+    elif compare > -0.1 + 1e-9:  # -0.1 ~ -0.01
+        _key_adder = -0.2  # -0.1
     elif compare > -0.25 + 1e-9:  # -0.25 ~ -0.1
         _key_adder = -0.2
     elif compare > -0.5 + 1e-9:  # -0.5 ~ -0.25
         _key_adder = -0.5
-    else:  # ~ -0.5
+    elif compare > -1 + 1e-9:  # -1 ~ -0.5
         _key_adder = -1
+    else:  # ~ -1
+        _key_adder = -2
     return _key_adder
 
 
